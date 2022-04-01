@@ -12,6 +12,7 @@ protected:
 	// Do Reset in the below section handles calling this function
 	virtual void Reset() = 0;
 
+
 public:
 	// List of the conditions required for this action to be valid
 	TMap<FString, bool> Preconditions;
@@ -29,7 +30,7 @@ public:
 	GOAPAction();
 
 	// Destructor
-	~GOAPAction();
+	virtual ~GOAPAction();
 
 	// Reset the action to its base state
 	void DoReset();
@@ -63,6 +64,5 @@ public:
 
 	// Whether or not the action requires something in range
 	virtual bool RequiresInRange() = 0;
-public:
 	
 };
