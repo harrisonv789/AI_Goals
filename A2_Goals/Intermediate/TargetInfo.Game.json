@@ -1,0 +1,14 @@
+{
+	"Targets": [
+		{
+			"Name": "A2_Goals",
+			"Path": "/Users/harrisonverrios/Documents/Uni/FIT3094 (Artificial Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals.Target.cs",
+			"Type": "Game"
+		},
+		{
+			"Name": "A2_GoalsEditor",
+			"Path": "/Users/harrisonverrios/Documents/Uni/FIT3094 (Artificial Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_GoalsEditor.Target.cs",
+			"Type": "Editor"
+		}
+	]
+}
