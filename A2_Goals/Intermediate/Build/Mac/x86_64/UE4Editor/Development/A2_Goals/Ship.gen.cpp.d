@@ -2668,5 +2668,5 @@
   /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Intermediate/Build/Mac/x86_64/UE4Editor/Development/A2_Goals/Definitions.A2_Goals.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/CoreUObject/Public/UObject/GeneratedCppIncludes.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/CoreUObject/Public/UObject/MetaData.h \
-  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/Ship.h \
+  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/Public/Ship.h \
   /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Intermediate/Build/Mac/x86_64/UE4Editor/Inc/A2_Goals/Ship.generated.h

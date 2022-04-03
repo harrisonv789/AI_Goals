@@ -2664,9 +2664,9 @@
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/ctime \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/ratio \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/climits \
-  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/A2_GoalsGameModeBase.cpp \
+  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/Private/GameMode/A2_GoalsGameModeBase.cpp \
   /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Intermediate/Build/Mac/x86_64/UE4Editor/Development/A2_Goals/Definitions.A2_Goals.h \
-  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/A2_GoalsGameModeBase.h \
+  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/Public/GameMode/A2_GoalsGameModeBase.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/Engine/Classes/GameFramework/GameModeBase.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/Engine/Classes/Engine/ServerStatReplicator.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Intermediate/Build/Mac/x86_64/UE4Editor/Inc/Engine/ServerStatReplicator.generated.h \

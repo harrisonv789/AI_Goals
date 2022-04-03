@@ -5,7 +5,7 @@
 ===========================================================================*/
 
 #include "UObject/GeneratedCppIncludes.h"
-#include "A2_Goals/A2_GoalsGameModeBase.h"
+#include "A2_Goals/Public/GameMode/A2_GoalsGameModeBase.h"
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable : 4883)
@@ -42,8 +42,8 @@ void EmptyLinkFunctionForGeneratedCodeA2_GoalsGameModeBase() {}
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AA2_GoalsGameModeBase_Statics::Class_MetaDataParams[] = {
 		{ "Comment", "/**\n * \n */" },
 		{ "HideCategories", "Info Rendering MovementReplication Replication Actor Input Movement Collision Rendering Utilities|Transformation" },
-		{ "IncludePath", "A2_GoalsGameModeBase.h" },
-		{ "ModuleRelativePath", "A2_GoalsGameModeBase.h" },
+		{ "IncludePath", "GameMode/A2_GoalsGameModeBase.h" },
+		{ "ModuleRelativePath", "Public/GameMode/A2_GoalsGameModeBase.h" },
 		{ "ShowCategories", "Input|MouseInput Input|TouchInput" },
 	};
 #endif
@@ -74,7 +74,7 @@ void EmptyLinkFunctionForGeneratedCodeA2_GoalsGameModeBase() {}
 		}
 		return OuterClass;
 	}
-	IMPLEMENT_CLASS(AA2_GoalsGameModeBase, 1254004846);
+	IMPLEMENT_CLASS(AA2_GoalsGameModeBase, 398098265);
 	template<> A2_GOALS_API UClass* StaticClass<AA2_GoalsGameModeBase>()
 	{
 		return AA2_GoalsGameModeBase::StaticClass();

@@ -13,10 +13,10 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define A2_GOALS_Ship_generated_h
 
-#define A2_Goals_Source_A2_Goals_Ship_h_12_SPARSE_DATA
-#define A2_Goals_Source_A2_Goals_Ship_h_12_RPC_WRAPPERS
-#define A2_Goals_Source_A2_Goals_Ship_h_12_RPC_WRAPPERS_NO_PURE_DECLS
-#define A2_Goals_Source_A2_Goals_Ship_h_12_INCLASS_NO_PURE_DECLS \
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_SPARSE_DATA
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_RPC_WRAPPERS
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_RPC_WRAPPERS_NO_PURE_DECLS
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesAShip(); \
 	friend struct Z_Construct_UClass_AShip_Statics; \
@@ -25,7 +25,7 @@ public: \
 	DECLARE_SERIALIZER(AShip)
 
 
-#define A2_Goals_Source_A2_Goals_Ship_h_12_INCLASS \
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_INCLASS \
 private: \
 	static void StaticRegisterNativesAShip(); \
 	friend struct Z_Construct_UClass_AShip_Statics; \
@@ -34,7 +34,7 @@ public: \
 	DECLARE_SERIALIZER(AShip)
 
 
-#define A2_Goals_Source_A2_Goals_Ship_h_12_STANDARD_CONSTRUCTORS \
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API AShip(const FObjectInitializer& ObjectInitializer); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(AShip) \
@@ -47,7 +47,7 @@ private: \
 public:
 
 
-#define A2_Goals_Source_A2_Goals_Ship_h_12_ENHANCED_CONSTRUCTORS \
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_ENHANCED_CONSTRUCTORS \
 private: \
 	/** Private move- and copy-constructors, should never be used */ \
 	NO_API AShip(AShip&&); \
@@ -58,28 +58,28 @@ public: \
 	DEFINE_DEFAULT_CONSTRUCTOR_CALL(AShip)
 
 
-#define A2_Goals_Source_A2_Goals_Ship_h_12_PRIVATE_PROPERTY_OFFSET
-#define A2_Goals_Source_A2_Goals_Ship_h_9_PROLOG
-#define A2_Goals_Source_A2_Goals_Ship_h_12_GENERATED_BODY_LEGACY \
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_PRIVATE_PROPERTY_OFFSET
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_16_PROLOG
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	A2_Goals_Source_A2_Goals_Ship_h_12_PRIVATE_PROPERTY_OFFSET \
-	A2_Goals_Source_A2_Goals_Ship_h_12_SPARSE_DATA \
-	A2_Goals_Source_A2_Goals_Ship_h_12_RPC_WRAPPERS \
-	A2_Goals_Source_A2_Goals_Ship_h_12_INCLASS \
-	A2_Goals_Source_A2_Goals_Ship_h_12_STANDARD_CONSTRUCTORS \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_PRIVATE_PROPERTY_OFFSET \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_SPARSE_DATA \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_RPC_WRAPPERS \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_INCLASS \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define A2_Goals_Source_A2_Goals_Ship_h_12_GENERATED_BODY \
+#define A2_Goals_Source_A2_Goals_Public_Ship_h_19_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	A2_Goals_Source_A2_Goals_Ship_h_12_PRIVATE_PROPERTY_OFFSET \
-	A2_Goals_Source_A2_Goals_Ship_h_12_SPARSE_DATA \
-	A2_Goals_Source_A2_Goals_Ship_h_12_RPC_WRAPPERS_NO_PURE_DECLS \
-	A2_Goals_Source_A2_Goals_Ship_h_12_INCLASS_NO_PURE_DECLS \
-	A2_Goals_Source_A2_Goals_Ship_h_12_ENHANCED_CONSTRUCTORS \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_PRIVATE_PROPERTY_OFFSET \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_SPARSE_DATA \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_RPC_WRAPPERS_NO_PURE_DECLS \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_INCLASS_NO_PURE_DECLS \
+	A2_Goals_Source_A2_Goals_Public_Ship_h_19_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -87,7 +87,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> A2_GOALS_API UClass* StaticClass<class AShip>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID A2_Goals_Source_A2_Goals_Ship_h
+#define CURRENT_FILE_ID A2_Goals_Source_A2_Goals_Public_Ship_h
 
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

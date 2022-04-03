@@ -2664,6 +2664,6 @@
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/ctime \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/ratio \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/climits \
-  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/GOAPAction.cpp \
+  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/Private/Planning/GOAPAction.cpp \
   /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Intermediate/Build/Mac/x86_64/UE4Editor/Development/A2_Goals/Definitions.A2_Goals.h \
-  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/GOAPAction.h
+  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/Public/Planning/GOAPAction.h

@@ -5,7 +5,7 @@
 ===========================================================================*/
 
 #include "UObject/GeneratedCppIncludes.h"
-#include "A2_Goals/Ship.h"
+#include "A2_Goals/Public/Ship.h"
 #ifdef _MSC_VER
 #pragma warning (push)
 #pragma warning (disable : 4883)
@@ -40,8 +40,12 @@ void EmptyLinkFunctionForGeneratedCodeShip() {}
 	};
 #if WITH_METADATA
 	const UE4CodeGen_Private::FMetaDataPairParam Z_Construct_UClass_AShip_Statics::Class_MetaDataParams[] = {
+		{ "BlueprintType", "true" },
+		{ "Comment", "/**\n * @brief The base actor class for all ships that can navigate throughout the\n *\x09\x09game and can follow the goal process.\n */" },
 		{ "IncludePath", "Ship.h" },
-		{ "ModuleRelativePath", "Ship.h" },
+		{ "IsBlueprintBase", "true" },
+		{ "ModuleRelativePath", "Public/Ship.h" },
+		{ "ToolTip", "@brief The base actor class for all ships that can navigate throughout the\n            game and can follow the goal process." },
 	};
 #endif
 	const FCppClassTypeInfoStatic Z_Construct_UClass_AShip_Statics::StaticCppClassTypeInfo = {
@@ -71,7 +75,7 @@ void EmptyLinkFunctionForGeneratedCodeShip() {}
 		}
 		return OuterClass;
 	}
-	IMPLEMENT_CLASS(AShip, 2839313742);
+	IMPLEMENT_CLASS(AShip, 3041376591);
 	template<> A2_GOALS_API UClass* StaticClass<AShip>()
 	{
 		return AShip::StaticClass();

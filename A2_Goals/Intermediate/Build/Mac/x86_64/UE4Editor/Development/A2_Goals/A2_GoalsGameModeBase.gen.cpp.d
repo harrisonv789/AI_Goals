@@ -2668,7 +2668,7 @@
   /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Intermediate/Build/Mac/x86_64/UE4Editor/Development/A2_Goals/Definitions.A2_Goals.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/CoreUObject/Public/UObject/GeneratedCppIncludes.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/CoreUObject/Public/UObject/MetaData.h \
-  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/A2_GoalsGameModeBase.h \
+  /Users/harrisonverrios/Documents/Uni/FIT3094\ (Artificial\ Life)/Assignments/UE4_AI_Assignment_2/A2_Goals/Source/A2_Goals/Public/GameMode/A2_GoalsGameModeBase.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/Engine/Classes/GameFramework/GameModeBase.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Source/Runtime/Engine/Classes/Engine/ServerStatReplicator.h \
   /Users/Shared/Epic\ Games/UE_4.27/Engine/Intermediate/Build/Mac/x86_64/UE4Editor/Inc/Engine/ServerStatReplicator.generated.h \

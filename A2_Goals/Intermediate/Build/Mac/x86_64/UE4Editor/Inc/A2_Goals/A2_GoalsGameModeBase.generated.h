@@ -13,10 +13,10 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #endif
 #define A2_GOALS_A2_GoalsGameModeBase_generated_h
 
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_SPARSE_DATA
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_RPC_WRAPPERS
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_RPC_WRAPPERS_NO_PURE_DECLS
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_INCLASS_NO_PURE_DECLS \
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_SPARSE_DATA
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_RPC_WRAPPERS
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_RPC_WRAPPERS_NO_PURE_DECLS
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_INCLASS_NO_PURE_DECLS \
 private: \
 	static void StaticRegisterNativesAA2_GoalsGameModeBase(); \
 	friend struct Z_Construct_UClass_AA2_GoalsGameModeBase_Statics; \
@@ -25,7 +25,7 @@ public: \
 	DECLARE_SERIALIZER(AA2_GoalsGameModeBase)
 
 
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_INCLASS \
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_INCLASS \
 private: \
 	static void StaticRegisterNativesAA2_GoalsGameModeBase(); \
 	friend struct Z_Construct_UClass_AA2_GoalsGameModeBase_Statics; \
@@ -34,7 +34,7 @@ public: \
 	DECLARE_SERIALIZER(AA2_GoalsGameModeBase)
 
 
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_STANDARD_CONSTRUCTORS \
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_STANDARD_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API AA2_GoalsGameModeBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()); \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(AA2_GoalsGameModeBase) \
@@ -47,7 +47,7 @@ private: \
 public:
 
 
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_ENHANCED_CONSTRUCTORS \
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_ENHANCED_CONSTRUCTORS \
 	/** Standard constructor, called after all reflected properties have been initialized */ \
 	NO_API AA2_GoalsGameModeBase(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get()) : Super(ObjectInitializer) { }; \
 private: \
@@ -60,28 +60,28 @@ public: \
 	DEFINE_DEFAULT_OBJECT_INITIALIZER_CONSTRUCTOR_CALL(AA2_GoalsGameModeBase)
 
 
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_PRIVATE_PROPERTY_OFFSET
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_12_PROLOG
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_GENERATED_BODY_LEGACY \
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_PRIVATE_PROPERTY_OFFSET
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_15_PROLOG
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_GENERATED_BODY_LEGACY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_PRIVATE_PROPERTY_OFFSET \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_SPARSE_DATA \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_RPC_WRAPPERS \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_INCLASS \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_STANDARD_CONSTRUCTORS \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_PRIVATE_PROPERTY_OFFSET \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_SPARSE_DATA \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_RPC_WRAPPERS \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_INCLASS \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_STANDARD_CONSTRUCTORS \
 public: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
 
-#define A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_GENERATED_BODY \
+#define A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_GENERATED_BODY \
 PRAGMA_DISABLE_DEPRECATION_WARNINGS \
 public: \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_PRIVATE_PROPERTY_OFFSET \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_SPARSE_DATA \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_RPC_WRAPPERS_NO_PURE_DECLS \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_INCLASS_NO_PURE_DECLS \
-	A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h_15_ENHANCED_CONSTRUCTORS \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_PRIVATE_PROPERTY_OFFSET \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_SPARSE_DATA \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_RPC_WRAPPERS_NO_PURE_DECLS \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_INCLASS_NO_PURE_DECLS \
+	A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h_18_ENHANCED_CONSTRUCTORS \
 private: \
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
 
@@ -89,7 +89,7 @@ PRAGMA_ENABLE_DEPRECATION_WARNINGS
 template<> A2_GOALS_API UClass* StaticClass<class AA2_GoalsGameModeBase>();
 
 #undef CURRENT_FILE_ID
-#define CURRENT_FILE_ID A2_Goals_Source_A2_Goals_A2_GoalsGameModeBase_h
+#define CURRENT_FILE_ID A2_Goals_Source_A2_Goals_Public_GameMode_A2_GoalsGameModeBase_h
 
 
 PRAGMA_ENABLE_DEPRECATION_WARNINGS
