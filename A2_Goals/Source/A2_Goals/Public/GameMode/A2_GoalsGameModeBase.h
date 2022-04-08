@@ -16,5 +16,14 @@ UCLASS()
 class A2_GOALS_API AA2_GoalsGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Utility Functions")
+		TArray<FString> GetMapFileList();
+
+	UFUNCTION(BlueprintCallable, Category = "Utility Functions")
+		FString GetRandomMapText();
+
+	UFUNCTION(BlueprintCallable, Category = "Utility Functions")
+		TArray<FString> GetMapArray();
 };
