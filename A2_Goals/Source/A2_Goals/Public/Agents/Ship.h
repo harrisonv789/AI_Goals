@@ -45,6 +45,10 @@ public:
 	int Morale = 100;
 	int TargetMorale = 100;
 
+	// The direction that the current ship is moving towards
+	UPROPERTY(BlueprintReadOnly)
+	FVector MovementDirection;
+
 	int XPos;
 	int YPos;
 

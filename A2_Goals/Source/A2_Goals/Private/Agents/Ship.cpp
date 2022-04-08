@@ -16,6 +16,7 @@ AShip::AShip()
 	PrimaryActorTick.bCanEverTick = true;
 	MoveSpeed = 100;
 	Tolerance = 1;
+	MovementDirection = FVector::ZeroVector;
 
 	// Create the new state machine and register the states
 	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
@@ -49,6 +50,7 @@ void AShip::OnIdleEnter()
 void AShip::OnIdleTick(float _deltaTime)
 {
 	FinishedMoving = true;
+	MovementDirection = FVector::ZeroVector;
 
 	// Check if the idle time is greater than the max
 	if (CurrentIdleTime >= MaxIdleTime)
@@ -140,6 +142,9 @@ void AShip::OnMoveTick(float _deltaTime)
 			FVector direction = targetPosition - currentPosition;
 			direction.Normalize();
 
+			// Update the movement direction
+			MovementDirection = direction;
+
 			// Add the direction to the current position
 			currentPosition += direction * _deltaTime;
 			SetActorLocation(currentPosition);
@@ -163,6 +168,9 @@ void AShip::OnMoveTick(float _deltaTime)
 		{
 			// Sets the current action to be in range as the location is now correct
 			currentAction->SetInRange(true);
+
+			// Reset the movement direction
+			MovementDirection = FVector::ZeroVector;
 
 			// Change to the action state to perform the next action
 			ActionStateMachine->ChangeState(ACTION);

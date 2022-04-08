@@ -34,7 +34,7 @@ class CollectTreasureAction : public GOAPAction
 	/**
 	 * @brief Resets the action status
 	 */
-	void Reset();
+	void Reset() override;
 	
 
 	/************************************************************/
