@@ -4,6 +4,7 @@
  */
 
 #include "Planning/GOAPPlanner.h"
+#include "Actions/GOAPAction.h"
 
 bool GOAPPlanner::Plan(AShip* _ship, const TSet<GOAPAction*>& _availableActions, TQueue<GOAPAction*>& _plannedActions,
 	TMap<FString, bool> _worldState, TMap<FString, bool> _goalState)

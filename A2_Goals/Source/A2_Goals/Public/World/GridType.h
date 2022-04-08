@@ -11,13 +11,13 @@
 UENUM(Blueprintable, BlueprintType)
 enum EGridType
 {
-	DeepWater			= 0,
-	Land				= 1,
-	ShallowWater		= 2,
-	Home				= 3,
-	WoodResource		= 4,
-	StoneResource		= 5,
-	FruitResource		= 6,
-	MerchantResource	= 7,
-	GoldResource		= 8
+	DEEP_WATER			= 0,
+	LAND				= 1,
+	SHALLOW_WATER		= 2,
+	HOME				= 3,
+	WOOD_RESOURCE		= 4,
+	STONE_RESOURCE		= 5,
+	FRUIT_RESOURCE		= 6,
+	MERCHANT_RESOURCE	= 7,
+	GOLD_RESOURCE		= 8
 };

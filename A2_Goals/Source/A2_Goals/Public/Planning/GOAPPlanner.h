@@ -6,6 +6,7 @@
 #pragma once
 
 #include "GOAPNode.h"
+#include "Actions/GOAPAction.h"
 
 // Forward declarations of ships and any dependencies
 class AShip;

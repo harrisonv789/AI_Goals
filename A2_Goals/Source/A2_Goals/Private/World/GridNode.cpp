@@ -10,7 +10,7 @@ GridNode::GridNode()
 	X = 0;
 	Y = 0;
 
-	GridType = DeepWater;
+	GridType = DEEP_WATER;
 	Parent = nullptr;
 	ObjectAtLocation = nullptr;
 
@@ -25,11 +25,11 @@ float GridNode::GetTravelCost() const
 {
 	switch(GridType)
 	{
-		case DeepWater:
+		case DEEP_WATER:
 			return 1;
-		case ShallowWater:
+		case SHALLOW_WATER:
 			return 2;
-		case Land:
+		case LAND:
 			return 999999;
 		default:
 			return 1;

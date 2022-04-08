@@ -122,7 +122,7 @@ void ALevelGenerator::SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 					case 'W':
 						World->SpawnActor(WoodBlueprint, &Position, &FRotator::ZeroRotator);
 						TempResource = Cast<AResourceActor>(World->SpawnActor(ResourceBlueprint, &Position, &FRotator::ZeroRotator));
-						TempResource->ResourceType = EGridType::WoodResource;
+						TempResource->ResourceType = EGridType::WOOD_RESOURCE;
 						TempResource->XPos = x;
 						TempResource->YPos = y;
 						WorldArray[x][y]->ResourceAtLocation = TempResource;
@@ -130,7 +130,7 @@ void ALevelGenerator::SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 					case 'S':
 						World->SpawnActor(StoneBlueprint, &Position, &FRotator::ZeroRotator);
 						TempResource = Cast<AResourceActor>(World->SpawnActor(ResourceBlueprint, &Position, &FRotator::ZeroRotator));
-						TempResource->ResourceType = EGridType::StoneResource;
+						TempResource->ResourceType = EGridType::STONE_RESOURCE;
 						TempResource->XPos = x;
 						TempResource->YPos = y;
 						WorldArray[x][y]->ResourceAtLocation = TempResource;
@@ -138,7 +138,7 @@ void ALevelGenerator::SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 					case 'F':
 						World->SpawnActor(FruitBlueprint, &Position, &FRotator::ZeroRotator);
 						TempResource = Cast<AResourceActor>(World->SpawnActor(ResourceBlueprint, &Position, &FRotator::ZeroRotator));
-						TempResource->ResourceType = EGridType::FruitResource;
+						TempResource->ResourceType = EGridType::FRUIT_RESOURCE;
 						TempResource->XPos = x;
 						TempResource->YPos = y;
 						WorldArray[x][y]->ResourceAtLocation = TempResource;
@@ -146,7 +146,7 @@ void ALevelGenerator::SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 					case 'M':
 						World->SpawnActor(MerchantBlueprint, &Position, &FRotator::ZeroRotator);
 						TempResource = Cast<AResourceActor>(World->SpawnActor(ResourceBlueprint, &Position, &FRotator::ZeroRotator));
-						TempResource->ResourceType = EGridType::MerchantResource;
+						TempResource->ResourceType = EGridType::MERCHANT_RESOURCE;
 						TempResource->XPos = x;
 						TempResource->YPos = y;
 						WorldArray[x][y]->ResourceAtLocation = TempResource;
@@ -171,7 +171,7 @@ void ALevelGenerator::SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 				RandXPos = FMath::RandRange(0, MapSizeX - 1);
 				RandYPos = FMath::RandRange(0, MapSizeY - 1);
 
-				if (WorldArray[RandXPos][RandYPos]->GridType == EGridType::DeepWater && WorldArray[RandXPos][RandYPos]->ObjectAtLocation == nullptr)
+				if (WorldArray[RandXPos][RandYPos]->GridType == EGridType::DEEP_WATER && WorldArray[RandXPos][RandYPos]->ObjectAtLocation == nullptr)
 				{
 					isFree = true;
 				}
@@ -182,8 +182,8 @@ void ALevelGenerator::SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 			Agent->AddTickPrerequisiteActor(this);
 			Agent->Level = this;
 
-			Agent->xPos = RandXPos;
-			Agent->yPos = RandYPos;
+			Agent->XPos = RandXPos;
+			Agent->YPos = RandYPos;
 			
 			ShipFleet.Add(Agent);
 			WorldArray[RandXPos][RandYPos]->ObjectAtLocation = Agent;
@@ -202,7 +202,7 @@ void ALevelGenerator::SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 				RandXPos = FMath::RandRange(0, MapSizeX - 1);
 				RandYPos = FMath::RandRange(0, MapSizeY - 1);
 
-				if (WorldArray[RandXPos][RandYPos]->GridType == EGridType::DeepWater && WorldArray[RandXPos][RandYPos]->ObjectAtLocation == nullptr)
+				if (WorldArray[RandXPos][RandYPos]->GridType == EGridType::DEEP_WATER && WorldArray[RandXPos][RandYPos]->ObjectAtLocation == nullptr)
 				{
 					isFree = true;
 				}
@@ -242,7 +242,7 @@ void ALevelGenerator::SpawnNextGold()
 			RandXPos = FMath::RandRange(0, MapSizeX - 1);
 			RandYPos = FMath::RandRange(0, MapSizeY - 1);
 
-			if (WorldArray[RandXPos][RandYPos]->GridType == EGridType::DeepWater && WorldArray[RandXPos][RandYPos]->ObjectAtLocation == nullptr)
+			if (WorldArray[RandXPos][RandYPos]->GridType == EGridType::DEEP_WATER && WorldArray[RandXPos][RandYPos]->ObjectAtLocation == nullptr)
 			{
 				isFree = true;
 			}
@@ -274,28 +274,28 @@ void ALevelGenerator::GenerateNodeGrid(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 			switch(Grid[X][Y])
 			{
 				case '.':
-					WorldArray[X][Y]->GridType = EGridType::DeepWater;
+					WorldArray[X][Y]->GridType = EGridType::DEEP_WATER;
 					break;
 				case '@':
-					WorldArray[X][Y]->GridType = EGridType::Land;
+					WorldArray[X][Y]->GridType = EGridType::LAND;
 					break;
 				case 'H':
-					WorldArray[X][Y]->GridType = EGridType::Home;
+					WorldArray[X][Y]->GridType = EGridType::HOME;
 					break;
 				case 'W':
-					WorldArray[X][Y]->GridType = EGridType::WoodResource;
+					WorldArray[X][Y]->GridType = EGridType::WOOD_RESOURCE;
 					WorldArray[X][Y]->ResourceNum = 500;
 					break;
 				case 'S':
-					WorldArray[X][Y]->GridType = EGridType::StoneResource;
+					WorldArray[X][Y]->GridType = EGridType::STONE_RESOURCE;
 					WorldArray[X][Y]->ResourceNum = 500;
 					break;
 				case 'F':
-					WorldArray[X][Y]->GridType = EGridType::FruitResource;
+					WorldArray[X][Y]->GridType = EGridType::FRUIT_RESOURCE;
 					WorldArray[X][Y]->ResourceNum = 500;
 					break;
 				case 'M':
-					WorldArray[X][Y]->GridType = EGridType::MerchantResource;
+					WorldArray[X][Y]->GridType = EGridType::MERCHANT_RESOURCE;
 					WorldArray[X][Y]->ResourceNum = 500;
 					break;
 				default:
@@ -338,9 +338,9 @@ void ALevelGenerator::CalculatePath(AShip* TargetShip, GridNode* GoalNode)
 
 	TQueue<GridNode*> nodesToVisit;
 
-	GridNode* StartNode = WorldArray[TargetShip->xPos][TargetShip->yPos];
+	GridNode* StartNode = WorldArray[TargetShip->XPos][TargetShip->YPos];
 	if(!GoalNode) {
-		GoalNode = CalculateNearestGoal(StartNode->X, StartNode->Y, EGridType::GoldResource);
+		GoalNode = CalculateNearestGoal(StartNode->X, StartNode->Y, EGridType::GOLD_RESOURCE);
 	}
 
 	int StartXPos = TargetShip->GetActorLocation().X / GRID_SIZE_WORLD;
@@ -367,7 +367,7 @@ void ALevelGenerator::CalculatePath(AShip* TargetShip, GridNode* GoalNode)
 			// Get the Left neighbor from the list
 			tempNode = WorldArray[currentNode->X][currentNode->Y - 1];
 			// Check to make sure the node hasnt been visited AND is not closed (A wall)
-			if (tempNode->GridType != EGridType::Land && !tempNode->IsChecked)
+			if (tempNode->GridType != EGridType::LAND && !tempNode->IsChecked)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -382,7 +382,7 @@ void ALevelGenerator::CalculatePath(AShip* TargetShip, GridNode* GoalNode)
 			// Get the top neighbor from the list
 			tempNode = WorldArray[currentNode->X + 1][currentNode->Y];
 			// Check to make sure the node hasnt been visited AND is not closed (A wall)
-			if (tempNode->GridType != EGridType::Land && !tempNode->IsChecked)
+			if (tempNode->GridType != EGridType::LAND && !tempNode->IsChecked)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -397,7 +397,7 @@ void ALevelGenerator::CalculatePath(AShip* TargetShip, GridNode* GoalNode)
 			// Get the right neighbor from the list
 			tempNode = WorldArray[currentNode->X][currentNode->Y + 1];
 			// Check to make sure the node hasnt been visited AND is not closed (A wall)
-			if (tempNode->GridType != EGridType::Land && !tempNode->IsChecked)
+			if (tempNode->GridType != EGridType::LAND && !tempNode->IsChecked)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -412,7 +412,7 @@ void ALevelGenerator::CalculatePath(AShip* TargetShip, GridNode* GoalNode)
 			// Get the bottom neighbor from the list
 			tempNode = WorldArray[currentNode->X - 1][currentNode->Y];
 			// Check to make sure the node hasnt been visited AND is not closed (A wall)
-			if (tempNode->GridType != EGridType::Land && !tempNode->IsChecked)
+			if (tempNode->GridType != EGridType::LAND && !tempNode->IsChecked)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -430,7 +430,7 @@ void ALevelGenerator::CalculatePath(AShip* TargetShip, GridNode* GoalNode)
 
 void ALevelGenerator::CalculatePath(AShip* TargetShip, EGridType ResourceType)
 {
-	GridNode* StartNode = WorldArray[TargetShip->xPos][TargetShip->yPos];
+	GridNode* StartNode = WorldArray[TargetShip->XPos][TargetShip->YPos];
 	GridNode* GoalNode = CalculateNearestGoal(StartNode->X, StartNode->Y, ResourceType);
 
 	CalculatePath(TargetShip, GoalNode);
@@ -492,7 +492,7 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int XPos, int YPos, EGridType Re
 
 	GridNode* CurrentPosition = WorldArray[XPos][YPos];
 	
-	if(ResourceType == EGridType::GoldResource)
+	if(ResourceType == EGridType::GOLD_RESOURCE)
 	{
 		AGold* NearestGold = nullptr;
 		for(auto Gold: GoldActors)

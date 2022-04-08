@@ -3,7 +3,7 @@
  * Author: Harrison Verrios
  */
 
-#include "Planning/GOAPAction.h"
+#include "Actions/GOAPAction.h"
 
 GOAPAction::GOAPAction()
 {

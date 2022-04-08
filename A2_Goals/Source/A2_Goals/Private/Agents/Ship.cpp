@@ -4,8 +4,10 @@
  */
 
 #include "Agents/Ship.h"
-#include "Items/Gold.h"
-#include "World/LevelGenerator.h"
+
+#include "Actions/CollectTreasureAction.h"
+#include "Planning/GOAPPlanner.h"
+#include "Actions/GOAPAction.h"
 
 // Sets default values
 AShip::AShip()
@@ -14,6 +16,23 @@ AShip::AShip()
 	PrimaryActorTick.bCanEverTick = true;
 	MoveSpeed = 100;
 	Tolerance = 1;
+
+	// Create the new state machine and register the states
+	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
+	ActionStateMachine->RegisterState(IDLE, &AShip::OnIdleEnter, &AShip::OnIdleTick, &AShip::OnIdleExit);
+	ActionStateMachine->RegisterState(MOVE, &AShip::OnMoveEnter, &AShip::OnMoveTick, &AShip::OnMoveExit);
+	ActionStateMachine->RegisterState(ACTION, &AShip::OnActionEnter, &AShip::OnActionTick, &AShip::OnActionExit);
+	ActionStateMachine->ChangeState(IDLE);
+
+	// Set the default idles
+	MaxIdleTime = 3;
+	CurrentIdleTime = 0;
+
+	// Add in the collecting treasure action
+	CollectTreasureAction* treasureAction = new CollectTreasureAction();
+	treasureAction->AddPrecondition("HasMorale", false);
+	treasureAction->AddEffect("HasMorale", true);
+	AvailableActions.Add(treasureAction);
 }
 
 // Called when the game starts or when spawned
@@ -23,49 +42,252 @@ void AShip::BeginPlay()
 
 }
 
-// Called every frame
-void AShip::Tick(float DeltaTime)
+void AShip::OnIdleEnter()
 {
-	Super::Tick(DeltaTime);
+}
 
-	if (morale == 0)
+void AShip::OnIdleTick(float _deltaTime)
+{
+	FinishedMoving = true;
+
+	// Check if the idle time is greater than the max
+	if (CurrentIdleTime >= MaxIdleTime)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 12.f, FColor::Red, FString::Printf(TEXT("Your ship has undergone a mutiny! Ship: %s"), *GetName()));
-		UE_LOG(LogTemp, Warning, TEXT("Your ship has undergone a mutiny!"));
+		// Reset the idle
+		CurrentIdleTime = 0;
+
+		// In this state, we look to create a plan. Get the world state
+		TMap<FString, bool> worldState = GetWorldState();
+
+		// Get the desired goal state
+		TMap<FString, bool> goalState = GetGoalState();
+
+		// Attempt to make the plan and check success
+		if (GOAPPlanner::Plan(this, AvailableActions, CurrentActions, worldState, goalState))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s has found a plan! Executing plan now..."), *GetName());
+			ActionStateMachine->ChangeState(ACTION);
+		}
+
+		// If a plan failed
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s was unable to find a plan. Idling for %f seconds."), *GetName(), MaxIdleTime);
+		}
 	}
 
-	if(!FinishedMoving)
+	// Otherwise increment the idle
+	else
 	{
+		CurrentIdleTime += _deltaTime;
+	}
+}
+
+void AShip::OnIdleExit()
+{
+}
+
+void AShip::OnMoveEnter()
+{
+	// Check to see if there are no actions and cancel the current moving
+	if (CurrentActions.IsEmpty())
+	{
+		ActionStateMachine->ChangeState(IDLE);
+		return;
+	}
+
+	// If the current action requires an 'in-range' check, AND the target is missing, return to planning
+	GOAPAction* currentAction = *CurrentActions.Peek();
+	if (currentAction->RequiresInRange() && currentAction->Target == nullptr)
+	{
+		ActionStateMachine->ChangeState(IDLE);
+		return;
+	}
+
+	// If no fails, make a plan to move to the new action
+	if (currentAction->RequiresInRange())
+	{
+		// Finds the node with the action's target
+		GridNode* goalLocation = Level->FindGridNode(currentAction->Target);
+		if (goalLocation)
+		{
+			// Creates a new path to the goal
+			Level->CalculatePath(this, goalLocation);
+		}
+	}
+}
+
+void AShip::OnMoveTick(float _deltaTime)
+{
+	// Get the current action that we are executing
+	GOAPAction* currentAction = *CurrentActions.Peek();
+
+	// If currently moving
+	if (!FinishedMoving)
+	{
+		// If more grids to traverse
 		if (Path.Num() > 0)
 		{
-			FVector CurrentPosition = GetActorLocation();
+			// Get the current location
+			FVector currentPosition = GetActorLocation();
 
-			float TargetXPos = Path[0]->X * ALevelGenerator::GRID_SIZE_WORLD;
-			float TargetYPos = Path[0]->Y * ALevelGenerator::GRID_SIZE_WORLD;
+			// Calculates the target position based off the X & Y values inside of path
+			const float targetXPos = Path[0]->X * ALevelGenerator::GRID_SIZE_WORLD;
+			const float targetYPos = Path[0]->Y * ALevelGenerator::GRID_SIZE_WORLD;
+			const FVector targetPosition(targetXPos, targetYPos, currentPosition.Z);
 
-			FVector TargetPosition(TargetXPos, TargetYPos, CurrentPosition.Z);
+			// Get the next direction to travel
+			FVector direction = targetPosition - currentPosition;
+			direction.Normalize();
 
-			FVector Direction = TargetPosition - CurrentPosition;
-			Direction.Normalize();
+			// Add the direction to the current position
+			currentPosition += direction * _deltaTime;
+			SetActorLocation(currentPosition);
 
-			CurrentPosition += Direction * MoveSpeed * DeltaTime;
-			SetActorLocation(CurrentPosition);
-
-			if (FVector::Dist(CurrentPosition, TargetPosition) <= Tolerance)
+			// Check if the distance to the next position is close enough
+			if (FVector::Dist(currentPosition, targetPosition) <= Tolerance)
 			{
-				xPos = Path[0]->X;
-				yPos = Path[0]->Y;
-				CurrentPosition = TargetPosition;
+				// Update the current position and path
+				XPos = Path[0]->X;
+				YPos = Path[0]->Y;
+				currentPosition = targetPosition;
 				Path.RemoveAt(0);
-				morale--;
+				Morale--;
 
 				FinishedMoving = true;
 			}
 		}
+
+		// Otherwise, if no more grids
 		else
 		{
-			FinishedMoving = true;
-			Level->CalculatePath(this);
+			// Sets the current action to be in range as the location is now correct
+			currentAction->SetInRange(true);
+
+			// Change to the action state to perform the next action
+			ActionStateMachine->ChangeState(ACTION);
 		}
 	}
+}
+
+void AShip::OnMoveExit()
+{
+}
+
+void AShip::OnActionEnter()
+{
+}
+
+void AShip::OnActionTick(float _deltaTime)
+{
+	// We do not need to move on this action
+	FinishedMoving = true;
+
+	// If we have no states remaining, we change to idle and exit
+	if (CurrentActions.IsEmpty())
+	{
+		ActionStateMachine->ChangeState(IDLE);
+		return;
+	}
+
+	// Check to see if our action has completed
+	GOAPAction* currentAction = *CurrentActions.Peek();
+	if (currentAction->IsActionDone())
+	{
+		// We have finished with the action, we can now remove
+		CurrentActions.Dequeue(currentAction);
+
+		// Delete all path actors once the goal is reached
+		for (const auto pathObject : PathDisplayActors)
+		{
+			pathObject->Destroy();
+		}
+
+		// Remove the empty references
+		PathDisplayActors.Empty();
+	}
+
+	// Check if there are still more actions to execute
+	if (!CurrentActions.IsEmpty())
+	{
+		// Get to the top of the queue again
+		currentAction = *CurrentActions.Peek();
+
+		// Check to see if we need to be within range for an action
+		// If no range requirement, return true
+		bool inRange = currentAction->RequiresInRange() ? currentAction->IsInRange() : true;
+
+		// If we are in range, attempt the action
+		if (inRange)
+		{
+			// Attempt to perform the action
+			const bool isActionSuccessful = currentAction->PerformAction(this, _deltaTime);
+
+			// If we fail the action, change to the IDLE state and report that we abort
+			if (!isActionSuccessful)
+			{
+				ActionStateMachine->ChangeState(IDLE);
+				OnPlanAborted(currentAction);
+			}
+		}
+
+		// If not in range
+		else
+		{
+			// At this point, we have a valid action but we are not in range
+			ActionStateMachine->ChangeState(MOVE);
+		}
+	}
+
+	// If actions are empty
+	else
+	{
+		// No actions remaining, return to idle state
+		ActionStateMachine->ChangeState(IDLE);
+	}
+}
+
+void AShip::OnActionExit()
+{
+}
+
+TMap<FString, bool> AShip::GetWorldState()
+{
+	// Create a new empty state
+	TMap<FString, bool> worldState;
+
+	// Add in a morale flag
+	worldState.Add("HasMorale", Morale > TargetMorale);
+
+	// Returns the state
+	return worldState;
+}
+
+TMap<FString, bool> AShip::GetGoalState()
+{
+	// Create a new empty state
+	TMap<FString, bool> goalState;
+
+	// Make sure the morale is valid
+	goalState.Add("HasMorale", true);
+
+	// Returns the state
+	return goalState;
+}
+
+void AShip::OnPlanFailed(TMap<FString, bool> _failedGoalState)
+{
+}
+
+void AShip::OnPlanAborted(GOAPAction* _failedAction)
+{
+}
+
+// Called every frame
+void AShip::Tick(float _deltaTime)
+{
+	Super::Tick(_deltaTime);
+
+	// Tick the state machine
+	ActionStateMachine->Tick(_deltaTime);
 }

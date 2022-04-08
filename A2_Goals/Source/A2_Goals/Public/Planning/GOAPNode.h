@@ -6,7 +6,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GOAPAction.h"
+#include "Actions/GOAPAction.h"
 
 /**
  * @brief Defines a series of data points that specify an action as a node

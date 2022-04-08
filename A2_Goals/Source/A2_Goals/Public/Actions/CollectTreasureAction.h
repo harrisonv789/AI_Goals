@@ -5,21 +5,37 @@
 
 #pragma once
 
-#include "Planning/GOAPAction.h"
+#include "Actions/GOAPAction.h"
 
 /**
- * @brief A test action sequence that will be replaced later
- * TODO: Remove this class
+ * @brief An action that attempts to collect treasure
  */
-class TestAction : public GOAPAction
+class CollectTreasureAction : public GOAPAction
 {
 	/************************************************************/
-	protected:
+	private:
+
+	// How much treasure needs to be gathered?
+	const int TreasureToGather = 1;
+
+	// How long does it take to gather treasure?
+	const int TimeToCollect = 1;
+
+	// How many treasure have been gathered so far?
+	int TreasureGathered;
+
+	// How much time has elapsed inside of this action?
+	float ActionTime;
+
+	
+	/************************************************************/
+	private:
 	
 	/**
 	 * @brief Resets the action status
 	 */
-	virtual void Reset() override;
+	void Reset();
+	
 
 	/************************************************************/
 	public:
@@ -27,12 +43,12 @@ class TestAction : public GOAPAction
 	/**
 	 * @brief Default constructor
 	 */
-	TestAction();
+	CollectTreasureAction();
 
 	/**
 	 * @brief Default destructor
 	 */
-	virtual ~TestAction() override;
+	virtual ~CollectTreasureAction() override;
 
 	/**
 	 * @brief 
