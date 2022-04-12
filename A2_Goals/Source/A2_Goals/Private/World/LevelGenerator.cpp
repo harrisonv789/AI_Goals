@@ -500,7 +500,7 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int XPos, int YPos, EGridType Re
 			int xPos = Gold->GetActorLocation().X / GRID_SIZE_WORLD;
 			int yPos = Gold->GetActorLocation().Y / GRID_SIZE_WORLD;
 			
-			float CurrentPath = CalculateDistanceBetween(CurrentPosition, WorldArray[XPos][YPos]);
+			float CurrentPath = CalculateDistanceBetween(CurrentPosition, WorldArray[xPos][yPos]);
 			if(CurrentPath < ShortestPath)
 			{
 				NearestGold = Gold;
@@ -512,7 +512,7 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int XPos, int YPos, EGridType Re
 		{
 			int xPos = NearestGold->GetActorLocation().X / GRID_SIZE_WORLD;;
 			int yPos = NearestGold->GetActorLocation().Y / GRID_SIZE_WORLD;
-			return WorldArray[XPos][YPos];
+			return WorldArray[xPos][yPos];
 		}
 
 		return nullptr;

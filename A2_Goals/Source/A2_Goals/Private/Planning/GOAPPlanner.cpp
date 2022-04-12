@@ -18,7 +18,7 @@ bool GOAPPlanner::Plan(AShip* _ship, const TSet<GOAPAction*>& _availableActions,
 		action->DoReset();
 	}
 
-	// Clear the planned acion queue
+	// Clear the planned action queue
 	_plannedActions.Empty();
 
 	// Get usable actions

@@ -18,13 +18,6 @@ AShip::AShip()
 	Tolerance = 1;
 	MovementDirection = FVector::ZeroVector;
 
-	// Create the new state machine and register the states
-	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
-	ActionStateMachine->RegisterState(IDLE, &AShip::OnIdleEnter, &AShip::OnIdleTick, &AShip::OnIdleExit);
-	ActionStateMachine->RegisterState(MOVE, &AShip::OnMoveEnter, &AShip::OnMoveTick, &AShip::OnMoveExit);
-	ActionStateMachine->RegisterState(ACTION, &AShip::OnActionEnter, &AShip::OnActionTick, &AShip::OnActionExit);
-	ActionStateMachine->ChangeState(IDLE);
-
 	// Set the default idles
 	MaxIdleTime = 3;
 	CurrentIdleTime = 0;
@@ -34,6 +27,13 @@ AShip::AShip()
 	treasureAction->AddPrecondition("HasMorale", false);
 	treasureAction->AddEffect("HasMorale", true);
 	AvailableActions.Add(treasureAction);
+	
+	// Create the new state machine and register the states
+	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
+	ActionStateMachine->RegisterState(IDLE, &AShip::OnIdleEnter, &AShip::OnIdleTick, &AShip::OnIdleExit);
+	ActionStateMachine->RegisterState(MOVE, &AShip::OnMoveEnter, &AShip::OnMoveTick, &AShip::OnMoveExit);
+	ActionStateMachine->RegisterState(ACTION, &AShip::OnActionEnter, &AShip::OnActionTick, &AShip::OnActionExit);
+	ActionStateMachine->ChangeState(IDLE);
 }
 
 // Called when the game starts or when spawned
@@ -146,7 +146,7 @@ void AShip::OnMoveTick(float _deltaTime)
 			MovementDirection = direction;
 
 			// Add the direction to the current position
-			currentPosition += direction * _deltaTime;
+			currentPosition += direction * _deltaTime * MoveSpeed;
 			SetActorLocation(currentPosition);
 
 			// Check if the distance to the next position is close enough
