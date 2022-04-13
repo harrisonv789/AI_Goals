@@ -9,24 +9,23 @@
 #include "World/GridType.h"
 
 /**
- * @brief An action that attempts to collect some resource
+ * @brief An action that attempts to deposit some resource at the home base
  */
-class CollectResourceAction : public GOAPAction
+class DepositResourceAction : public GOAPAction
 {
 	/************************************************************/
-	public:
 
 	// The resource looking for
 	EGridType ResourceType;
 	
-	// How much resource needs to be gathered?
-	const int ResourceToGather = 50;
+	// How much resources will be deposited
+	int ResourcesToDeposit = 50;
 
-	// How long does it take to gather treasure?
-	const float TimeToCollect = 0.2f;
+	// How long does it take to deposit treasure?
+	const float TimeToDeposit = 0.1f;
 
-	// How much resource has been gathered so far?
-	int ResourceGathered;
+	// How much resource has been deposited so far?
+	int ResourcesDeposited;
 
 	// How much time has elapsed inside of this action?
 	float ActionTime;
@@ -44,15 +43,15 @@ class CollectResourceAction : public GOAPAction
 	public:
 	
 	/**
-	 * @brief Collects a resource of some type
+	 * @brief Deposits some resource of some type
 	 * @param resourceType The type of resource to look for
 	 */
-	CollectResourceAction(EGridType resourceType);
+	DepositResourceAction(EGridType resourceType, int resourcesToDeposit);
 
 	/**
 	 * @brief Default destructor
 	 */
-	virtual ~CollectResourceAction() override;
+	virtual ~DepositResourceAction() override;
 
 	/**
 	 * @brief Returns whether the action is completed or not

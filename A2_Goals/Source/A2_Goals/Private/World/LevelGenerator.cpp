@@ -120,7 +120,12 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 						world->SpawnActor(LandBlueprint, &position, &FRotator::ZeroRotator);
 						break;
 					case 'H':
-						world->SpawnActor(ShallowBlueprint, &position, &FRotator::ZeroRotator);
+						world->SpawnActor(HomeBlueprint, &position, &FRotator::ZeroRotator);
+						tempResource = Cast<AResourceActor>(world->SpawnActor(ResourceBlueprint, &position, &FRotator::ZeroRotator));
+						tempResource->ResourceType = HOME;
+						tempResource->XPos = x;
+						tempResource->YPos = y;
+						WorldArray[x][y]->ResourceAtLocation = tempResource;
 						break;
 					case 'W':
 						world->SpawnActor(WoodBlueprint, &position, &FRotator::ZeroRotator);

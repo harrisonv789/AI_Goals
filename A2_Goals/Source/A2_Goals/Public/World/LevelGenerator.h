@@ -67,6 +67,8 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	UPROPERTY(EditAnywhere, Category = "Entities")
 	TSubclassOf<AActor> ShallowBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
+	TSubclassOf<AActor> HomeBlueprint;
+	UPROPERTY(EditAnywhere, Category = "Entities")
 	TSubclassOf<AActor> WoodBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
 	TSubclassOf<AActor> FruitBlueprint;

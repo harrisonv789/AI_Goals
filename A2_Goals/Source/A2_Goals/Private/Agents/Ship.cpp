@@ -7,6 +7,7 @@
 
 #include "Actions/CollectResourceAction.h"
 #include "Actions/CollectTreasureAction.h"
+#include "Actions/DepositResourceAction.h"
 #include "Planning/GOAPPlanner.h"
 #include "Actions/GOAPAction.h"
 
@@ -49,6 +50,15 @@ void AShip::SetResourceTarget(EGridType resourceTarget)
 	resourceAction->AddPrecondition("CollectedResource", false);
 	resourceAction->AddEffect("CollectedResource", true);
 	AvailableActions.Add(resourceAction);
+
+	// Add in the depositing resource action
+	DepositResourceAction* depositAction = new DepositResourceAction(ResourceType, resourceAction->ResourceToGather);
+	depositAction->AddPrecondition("HasMorale", true);
+	depositAction->AddPrecondition("CollectedResource", true);
+	depositAction->AddPrecondition("ResourcesDeposited", false);
+	depositAction->AddEffect("CollectedResource", false);
+	depositAction->AddEffect("ResourcesDeposited", true);
+	AvailableActions.Add(depositAction);
 }
 
 
@@ -300,6 +310,9 @@ TMap<FString, bool> AShip::GetWorldState()
 	// TODO: Update with the actual resource
 	worldState.Add("CollectedResource", GetResourceCollected() > 0);
 
+	// TODO: Update this with the home base information
+	worldState.Add("ResourcesDeposited", false);
+
 	// Returns the state
 	return worldState;
 }
@@ -311,10 +324,10 @@ TMap<FString, bool> AShip::GetGoalState()
 	TMap<FString, bool> goalState;
 
 	// Make sure the morale is valid
-	//goalState.Add("HasMorale", true);
+	goalState.Add("HasMorale", true);
 
 	// TODO: Update with the real goal
-	goalState.Add("CollectedResource", true);
+	goalState.Add("ResourcesDeposited", true);
 
 	// Returns the state
 	return goalState;

@@ -18,7 +18,7 @@ class CollectTreasureAction : public GOAPAction
 	const int TreasureToGather = 1;
 
 	// How long does it take to gather treasure?
-	const int TimeToCollect = 1;
+	const float TimeToCollect = 1.0;
 
 	// How many treasure have been gathered so far?
 	int TreasureGathered;
