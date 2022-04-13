@@ -19,7 +19,7 @@ class CollectResourceAction : public GOAPAction
 	EGridType ResourceType;
 	
 	// How much resource needs to be gathered?
-	const int ResourceToGather = 1;
+	const int ResourceToGather = 50;
 
 	// How long does it take to gather treasure?
 	const int TimeToCollect = 1;

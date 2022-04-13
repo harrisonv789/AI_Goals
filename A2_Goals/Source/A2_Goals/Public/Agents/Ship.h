@@ -204,6 +204,12 @@ class A2_GOALS_API AShip : public AActor
 	AShip();
 
 	/**
+	 * @brief Updates the Resource Target and creates an action to reach
+	 * @param resourceTarget The new resource type
+	 */
+	void SetResourceTarget (EGridType resourceTarget);
+
+	/**
 	 * @brief Called every frame
 	 * @param deltaTime The time-step [s]
 	 */

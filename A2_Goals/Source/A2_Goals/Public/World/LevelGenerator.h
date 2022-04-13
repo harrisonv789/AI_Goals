@@ -89,6 +89,18 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	FVector CameraPositionOffset = FVector(0, 0, 3600);
 
+	// The total number of fruit collected
+	UPROPERTY(BlueprintReadOnly)
+	int TotalFruitCollected;
+
+	// The total number of stone collected
+	UPROPERTY(BlueprintReadOnly)
+	int TotalStoneCollected;
+
+	// The total number of wood collected
+	UPROPERTY(BlueprintReadOnly)
+	int TotalWoodCollected;
+
 	
 	/************************************************************/
 	protected:

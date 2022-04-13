@@ -28,13 +28,6 @@ AShip::AShip()
 	treasureAction->AddPrecondition("HasMorale", false);
 	treasureAction->AddEffect("HasMorale", true);
 	AvailableActions.Add(treasureAction);
-
-	// Add in the collecting resource action
-	CollectResourceAction* resourceAction = new CollectResourceAction(ResourceType);
-	resourceAction->AddPrecondition("HasMorale", true);
-	resourceAction->AddPrecondition("HasResource", false);
-	resourceAction->AddEffect("HasResource", true);
-	//AvailableActions.Add(resourceAction);
 	
 	// Create the new state machine and register the states
 	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
@@ -42,6 +35,20 @@ AShip::AShip()
 	ActionStateMachine->RegisterState(MOVE, &AShip::OnMoveEnter, &AShip::OnMoveTick, &AShip::OnMoveExit);
 	ActionStateMachine->RegisterState(ACTION, &AShip::OnActionEnter, &AShip::OnActionTick, &AShip::OnActionExit);
 	ActionStateMachine->ChangeState(IDLE);
+}
+
+
+void AShip::SetResourceTarget(EGridType resourceTarget)
+{
+	// Update the resource
+	ResourceType = resourceTarget;
+	
+	// Add in the collecting resource action
+	CollectResourceAction* resourceAction = new CollectResourceAction(ResourceType);
+	resourceAction->AddPrecondition("HasMorale", true);
+	resourceAction->AddPrecondition("CollectedResource", false);
+	resourceAction->AddEffect("CollectedResource", true);
+	AvailableActions.Add(resourceAction);
 }
 
 
@@ -291,7 +298,7 @@ TMap<FString, bool> AShip::GetWorldState()
 	worldState.Add("HasMorale", IsMoraleReached());
 
 	// TODO: Update with the actual resource
-	//worldState.Add("HasResource", false);
+	worldState.Add("CollectedResource", GetResourceCollected() > 0);
 
 	// Returns the state
 	return worldState;
@@ -304,10 +311,10 @@ TMap<FString, bool> AShip::GetGoalState()
 	TMap<FString, bool> goalState;
 
 	// Make sure the morale is valid
-	goalState.Add("HasMorale", true);
+	//goalState.Add("HasMorale", true);
 
 	// TODO: Update with the real goal
-	//goalState.Add("HasResource", true);
+	goalState.Add("CollectedResource", true);
 
 	// Returns the state
 	return goalState;

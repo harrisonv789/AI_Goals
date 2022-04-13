@@ -190,11 +190,11 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 
 			// Set the resource type
 			if (i % 3 == 0)
-				agent->ResourceType = FRUIT_RESOURCE;
+				agent->SetResourceTarget(FRUIT_RESOURCE);
 			else if (i % 3 == 1)
-				agent->ResourceType = STONE_RESOURCE;
+				agent->SetResourceTarget(STONE_RESOURCE);
 			else
-				agent->ResourceType = WOOD_RESOURCE;
+				agent->SetResourceTarget(WOOD_RESOURCE);
 
 			// Set the ship index
 			agent->ShipNumber = i;
@@ -363,7 +363,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 
 	GridNode* startNode = WorldArray[targetShip->XPos][targetShip->YPos];
 	if(!goalNode) {
-		goalNode = CalculateNearestGoal(startNode->X, startNode->Y, EGridType::GOLD_RESOURCE);
+		goalNode = CalculateNearestGoal(startNode->X, startNode->Y, GOLD_RESOURCE);
 	}
 
 	const int startXPos = targetShip->GetActorLocation().X / GRID_SIZE_WORLD;
@@ -521,7 +521,7 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType re
 
 	GridNode* currentPosition = WorldArray[xPos][yPos];
 	
-	if(resourceType == EGridType::GOLD_RESOURCE)
+	if(resourceType == GOLD_RESOURCE)
 	{
 		AGold* nearestGold = nullptr;
 		for(const auto gold: GoldActors)
