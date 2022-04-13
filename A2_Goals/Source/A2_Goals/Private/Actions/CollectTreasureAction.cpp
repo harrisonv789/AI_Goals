@@ -38,16 +38,16 @@ bool CollectTreasureAction::IsActionDone()
 }
 
 
-bool CollectTreasureAction::CheckProceduralPreconditions(AShip* _ship)
+bool CollectTreasureAction::CheckProceduralPreconditions(AShip* ship)
 {
 	// If the ship does not exist
-	if (!_ship)
+	if (!ship)
 	{
 		return false;
 	}
 
 	// Calculate the nearest gold node
-	GridNode* goalNode = _ship->Level->CalculateNearestGoal(_ship->XPos, _ship->YPos, EGridType::GOLD_RESOURCE);
+	GridNode* goalNode = ship->Level->CalculateNearestGoal(ship->XPos, ship->YPos, EGridType::GOLD_RESOURCE);
 
 	// Check if the resource exiss
 	if (!goalNode || !goalNode->ResourceAtLocation)
@@ -57,7 +57,7 @@ bool CollectTreasureAction::CheckProceduralPreconditions(AShip* _ship)
 	Target = goalNode->ResourceAtLocation;
 
 	// Get the distance to the target
-	FVector distance = _ship->GetActorLocation() - Target->GetActorLocation();
+	FVector distance = ship->GetActorLocation() - Target->GetActorLocation();
 
 	// Check if the distance is less than some amount
 	SetInRange(distance.Size() <= 5);
@@ -67,16 +67,16 @@ bool CollectTreasureAction::CheckProceduralPreconditions(AShip* _ship)
 }
 
 
-bool CollectTreasureAction::PerformAction(AShip* _ship, float _deltaTime)
+bool CollectTreasureAction::PerformAction(AShip* ship, float deltaTime)
 {
 	// Add the current time to the count
-	ActionTime += _deltaTime;
+	ActionTime += deltaTime;
 
 	// Get the gold resource
 	AGold* goldResource = Cast<AGold>(Target);
 
 	// Check if the gold is invalid
-	if (!goldResource || !_ship->Level->IsGoldValid(goldResource))
+	if (!goldResource || !ship->Level->IsGoldValid(goldResource))
 		return false;
 
 	// Check the action time
@@ -84,8 +84,8 @@ bool CollectTreasureAction::PerformAction(AShip* _ship, float _deltaTime)
 	{
 		// Increase the morale
 		TreasureGathered++;
-		_ship->Morale = 200;
-		_ship->Level->CollectGold(goldResource);
+		ship->Morale = 200;
+		ship->Level->CollectGold(goldResource);
 
 		// Remove the target
 		Target = nullptr;

@@ -14,7 +14,6 @@
 struct GOAPNode
 {
 	/************************************************************/
-	public:
 	
 	// The parent node
 	GOAPNode* Parent;

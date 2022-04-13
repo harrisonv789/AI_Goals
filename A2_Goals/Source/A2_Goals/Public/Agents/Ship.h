@@ -21,8 +21,15 @@ UCLASS(Blueprintable, BlueprintType)
 class A2_GOALS_API AShip : public AActor
 {
 	GENERATED_BODY()
+
+	/************************************************************/
+	protected:
+
+	// The speed of movement
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float MoveSpeed;
+
+	// The distance to the goal the ship should be before it is reached
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	float Tolerance;
 
@@ -35,23 +42,44 @@ class A2_GOALS_API AShip : public AActor
 	// A list of actions to execute
 	TQueue<GOAPAction*> CurrentActions;
 
-public:	
-	// Sets default values for this actor's properties
-	AShip();
+	
+	/************************************************************/
+	public:	
+
+	// A flag for if the path is to be generated
 	bool GeneratePath = true;
+
+	// A flag for whether movement is complete
 	bool FinishedMoving = false;
+
+	// A list of grid nodes for the ship's path
 	TArray<GridNode*> Path;
+
+	// The current Level Generator
+	UPROPERTY()
 	ALevelGenerator* Level;
+
+	// The current ships Morale
+	UPROPERTY(BlueprintReadOnly)
 	int Morale = 100;
+
+	// The ships required Morale
+	UPROPERTY(BlueprintReadOnly)
 	int TargetMorale = 100;
 
 	// The direction that the current ship is moving towards
 	UPROPERTY(BlueprintReadOnly)
 	FVector MovementDirection;
 
+	// The current position of the ship
+	UPROPERTY(BlueprintReadOnly)
 	int XPos;
+
+	// The current Y position of the ship
+	UPROPERTY(BlueprintReadOnly)
 	int YPos;
 
+	// The current resource the ship is searching for
 	EGridType ResourceType;
 
 	UPROPERTY()
@@ -63,25 +91,73 @@ public:
 	// The current time the ship has remained idling
 	float CurrentIdleTime;
 
-	// Stores the number of each resource collected
+	// Stores the number of each stone collected
+	UPROPERTY(BlueprintReadOnly)
 	int NumStone;
+
+	// Stores the number of each wood collected
+	UPROPERTY(BlueprintReadOnly)
 	int NumWood;
-	int NumFruit;
 	
-protected:
-	// Called when the game starts or when spawned
+	// Stores the number of each fruit collected
+	UPROPERTY(BlueprintReadOnly)
+	int NumFruit;
+
+	
+	/************************************************************/
+	protected:
+	
+	/**
+	 * @brief Called when the game starts or when spawned
+	 */
 	virtual void BeginPlay() override;
 
+	/**
+	 * @brief Called when the IDLE state is entered
+	 */
 	void OnIdleEnter ();
-	void OnIdleTick (float _deltaTime);
+
+	/**
+	 * @brief Called when the IDLE state is ticked
+	 * @param deltaTime The time-step [s]
+	 */
+	void OnIdleTick (float deltaTime);
+
+	/**
+	 * @brief Called when the IDLE state is exited
+	 */
 	void OnIdleExit ();
 
+	/**
+	 * @brief Called when the MOVE state is entered
+	 */
 	void OnMoveEnter ();
-	void OnMoveTick (float _deltaTime);
+
+	/**
+	 * @brief Called when the MOVE state is ticked
+	 * @param deltaTime The time-step [s]
+	 */
+	void OnMoveTick (float deltaTime);
+
+	/**
+	 * @brief Called when the MOVE state is exited
+	 */
 	void OnMoveExit ();
 
+	/**
+	 * @brief Called when the ACTION state is entered
+	 */
 	void OnActionEnter ();
-	void OnActionTick (float _deltaTime);
+	
+	/**
+	 * @brief Called when the ACTION state is ticked
+	 * @param deltaTime The time-step [s]
+	 */
+	void OnActionTick (float deltaTime);
+
+	/**
+	 * @brief Called when the ACTION state is exited
+	 */
 	void OnActionExit ();
 
 	/**
@@ -98,17 +174,28 @@ protected:
 
 	/**
 	 * @brief A plan was unable to be found. Likely to idle for a bit
-	 * @param _failedGoalState The goal state mapping
+	 * @param failedGoalState The goal state mapping
 	 */
-	void OnPlanFailed (TMap<FString, bool> _failedGoalState);
+	void OnPlanFailed (TMap<FString, bool> failedGoalState);
 
 	/**
 	 * @brief A plan was aborted midway through an action
-	 * @param _failedAction The action that failed to execute
+	 * @param failedAction The action that failed to execute
 	 */
-	void OnPlanAborted (GOAPAction* _failedAction);
+	void OnPlanAborted (GOAPAction* failedAction);
 
-public:	
-	// Called every frame
-	virtual void Tick(float _deltaTime) override;
+	
+	/************************************************************/
+	public:
+	
+	/**
+	 * @brief Default constructor
+	 */
+	AShip();
+
+	/**
+	 * @brief Called every frame
+	 * @param deltaTime The time-step [s]
+	 */
+	virtual void Tick(float deltaTime) override;
 };

@@ -13,7 +13,6 @@
 class CollectTreasureAction : public GOAPAction
 {
 	/************************************************************/
-	private:
 
 	// How much treasure needs to be gathered?
 	const int TreasureToGather = 1;
@@ -29,12 +28,11 @@ class CollectTreasureAction : public GOAPAction
 
 	
 	/************************************************************/
-	private:
 	
 	/**
 	 * @brief Resets the action status
 	 */
-	void Reset() override;
+	virtual void Reset() override;
 	
 
 	/************************************************************/
@@ -51,17 +49,29 @@ class CollectTreasureAction : public GOAPAction
 	virtual ~CollectTreasureAction() override;
 
 	/**
-	 * @brief 
-	 * @return 
+	 * @brief Returns whether the action is completed or not
+	 * @return A success flag
 	 */
 	virtual bool IsActionDone() override;
 
-	// Pure virtual functions that the child classes must inherit
-	virtual bool CheckProceduralPreconditions(AShip* _ship) override;
+	/**
+	 * @brief Checks if the current preconditions are valid
+	 * @param ship A reference to the ship agent
+	 * @return A state flag for the conditions
+	 */
+	virtual bool CheckProceduralPreconditions(AShip* ship) override;
 
-	// Performs the action
-	virtual bool PerformAction(AShip* _ship, float _deltaTime) override;
+	/**
+	 * @brief Performs the action on a particular agent
+	 * @param ship A reference to the ship agent
+	 * @param deltaTime The current time difference for the action to run at
+	 * @return A success flag for the action
+	 */
+	virtual bool PerformAction(AShip* ship, float deltaTime) override;
 
-	// Whether or not the action requires something in range
+	/**
+	 * @brief Whether or not the action requires something in range
+	 * @return In Range flag
+	 */
 	virtual bool RequiresInRange() override;
 };

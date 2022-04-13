@@ -36,18 +36,21 @@ AShip::AShip()
 	ActionStateMachine->ChangeState(IDLE);
 }
 
+
 // Called when the game starts or when spawned
 void AShip::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
+
 
 void AShip::OnIdleEnter()
 {
+	
 }
 
-void AShip::OnIdleTick(float _deltaTime)
+
+void AShip::OnIdleTick(float deltaTime)
 {
 	FinishedMoving = true;
 	MovementDirection = FVector::ZeroVector;
@@ -59,10 +62,10 @@ void AShip::OnIdleTick(float _deltaTime)
 		CurrentIdleTime = 0;
 
 		// In this state, we look to create a plan. Get the world state
-		TMap<FString, bool> worldState = GetWorldState();
+		const TMap<FString, bool> worldState = GetWorldState();
 
 		// Get the desired goal state
-		TMap<FString, bool> goalState = GetGoalState();
+		const TMap<FString, bool> goalState = GetGoalState();
 
 		// Attempt to make the plan and check success
 		if (GOAPPlanner::Plan(this, AvailableActions, CurrentActions, worldState, goalState))
@@ -81,13 +84,16 @@ void AShip::OnIdleTick(float _deltaTime)
 	// Otherwise increment the idle
 	else
 	{
-		CurrentIdleTime += _deltaTime;
+		CurrentIdleTime += deltaTime;
 	}
 }
 
+
 void AShip::OnIdleExit()
 {
+	
 }
+
 
 void AShip::OnMoveEnter()
 {
@@ -119,7 +125,8 @@ void AShip::OnMoveEnter()
 	}
 }
 
-void AShip::OnMoveTick(float _deltaTime)
+
+void AShip::OnMoveTick(float deltaTime)
 {
 	// Get the current action that we are executing
 	GOAPAction* currentAction = *CurrentActions.Peek();
@@ -146,7 +153,7 @@ void AShip::OnMoveTick(float _deltaTime)
 			MovementDirection = direction;
 
 			// Add the direction to the current position
-			currentPosition += direction * _deltaTime * MoveSpeed;
+			currentPosition += direction * deltaTime * MoveSpeed;
 			SetActorLocation(currentPosition);
 
 			// Check if the distance to the next position is close enough
@@ -178,15 +185,20 @@ void AShip::OnMoveTick(float _deltaTime)
 	}
 }
 
+
 void AShip::OnMoveExit()
 {
+	
 }
+
 
 void AShip::OnActionEnter()
 {
+	
 }
 
-void AShip::OnActionTick(float _deltaTime)
+
+void AShip::OnActionTick(float deltaTime)
 {
 	// We do not need to move on this action
 	FinishedMoving = true;
@@ -223,13 +235,13 @@ void AShip::OnActionTick(float _deltaTime)
 
 		// Check to see if we need to be within range for an action
 		// If no range requirement, return true
-		bool inRange = currentAction->RequiresInRange() ? currentAction->IsInRange() : true;
+		const bool inRange = currentAction->RequiresInRange() ? currentAction->IsInRange() : true;
 
 		// If we are in range, attempt the action
 		if (inRange)
 		{
 			// Attempt to perform the action
-			const bool isActionSuccessful = currentAction->PerformAction(this, _deltaTime);
+			const bool isActionSuccessful = currentAction->PerformAction(this, deltaTime);
 
 			// If we fail the action, change to the IDLE state and report that we abort
 			if (!isActionSuccessful)
@@ -255,9 +267,12 @@ void AShip::OnActionTick(float _deltaTime)
 	}
 }
 
+
 void AShip::OnActionExit()
 {
+	
 }
+
 
 TMap<FString, bool> AShip::GetWorldState()
 {
@@ -271,6 +286,7 @@ TMap<FString, bool> AShip::GetWorldState()
 	return worldState;
 }
 
+
 TMap<FString, bool> AShip::GetGoalState()
 {
 	// Create a new empty state
@@ -283,19 +299,24 @@ TMap<FString, bool> AShip::GetGoalState()
 	return goalState;
 }
 
-void AShip::OnPlanFailed(TMap<FString, bool> _failedGoalState)
+
+void AShip::OnPlanFailed(TMap<FString, bool> failedGoalState)
 {
+	
 }
 
-void AShip::OnPlanAborted(GOAPAction* _failedAction)
+
+void AShip::OnPlanAborted(GOAPAction* failedAction)
 {
+	
 }
+
 
 // Called every frame
-void AShip::Tick(float _deltaTime)
+void AShip::Tick(float deltaTime)
 {
-	Super::Tick(_deltaTime);
+	Super::Tick(deltaTime);
 
 	// Tick the state machine
-	ActionStateMachine->Tick(_deltaTime);
+	ActionStateMachine->Tick(deltaTime);
 }

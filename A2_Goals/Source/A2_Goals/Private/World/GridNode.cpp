@@ -13,6 +13,9 @@ GridNode::GridNode()
 	GridType = DEEP_WATER;
 	Parent = nullptr;
 	ObjectAtLocation = nullptr;
+	ResourceAtLocation = nullptr;
+
+	ResourceNum = 0;
 
 	G = 0;
 	H = 0;
@@ -20,6 +23,7 @@ GridNode::GridNode()
 	
 	IsChecked = false;
 }
+
 
 float GridNode::GetTravelCost() const
 {

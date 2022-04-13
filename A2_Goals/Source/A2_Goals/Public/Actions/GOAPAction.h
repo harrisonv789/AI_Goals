@@ -68,29 +68,29 @@ class GOAPAction
 
 	/**
 	 * @brief Adds a precondition state to the current condition list
-	 * @param _name The key of the new condition
-	 * @param _state The starting state flag of the condition
+	 * @param name The key of the new condition
+	 * @param state The starting state flag of the condition
 	 */
-	void AddPrecondition(FString _name, bool _state);
+	void AddPrecondition(FString name, bool state);
 
 	/**
 	 * @brief Removes a precondition state from the condition list
-	 * @param _name The key of the new condition
+	 * @param name The key of the new condition
 	 */
-	void RemovePrecondition(FString _name);
+	void RemovePrecondition(FString name);
 
 	/**
 	 * @brief Adds a new effect of the action to the current effects list
-	 * @param _name The key of the new effect
-	 * @param _state The starting state flag of the effect
+	 * @param name The key of the new effect
+	 * @param state The starting state flag of the effect
 	 */
-	void AddEffect(FString _name, bool _state);
+	void AddEffect(FString name, bool state);
 
 	/**
 	 * @brief Removes an effect from the effects list
-	 * @param _name The key of the new effect
+	 * @param name The key of the new effect
 	 */
-	void RemoveEffect(FString _name);
+	void RemoveEffect(FString name);
 
 	/**
 	 * @brief Checks whether or not the current action is within range
@@ -100,9 +100,9 @@ class GOAPAction
 
 	/**
 	 * @brief Sets the state of whether the action is within range
-	 * @param _range The new range flag
+	 * @param range The new range flag
 	 */
-	void SetInRange (bool _range);
+	void SetInRange (bool range);
 
 	/**
 	 * @brief Returns whether the action is completed or not
@@ -112,18 +112,18 @@ class GOAPAction
 
 	/**
 	 * @brief Checks if the current preconditions are valid
-	 * @param _ship A reference to the ship agent
+	 * @param ship A reference to the ship agent
 	 * @return A state flag for the conditions
 	 */
-	virtual bool CheckProceduralPreconditions(AShip* _ship) = 0;
+	virtual bool CheckProceduralPreconditions(AShip* ship) = 0;
 
 	/**
 	 * @brief Performs the action on a particular agent
-	 * @param _ship A reference to the ship agent
-	 * @param _deltaTime The current time difference for the action to run at
+	 * @param ship A reference to the ship agent
+	 * @param deltaTime The current time difference for the action to run at
 	 * @return A success flag for the action
 	 */
-	virtual bool PerformAction(AShip* _ship, float _deltaTime) = 0;
+	virtual bool PerformAction(AShip* ship, float deltaTime) = 0;
 
 	/**
 	 * @brief Whether or not the action requires something in range

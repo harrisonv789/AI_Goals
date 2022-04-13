@@ -13,7 +13,7 @@ TArray<FString> AA2_GoalsGameModeBase::GetMapArray()
 
 
 	//FString MapText = GetMapText(FString MapName);
-	FString MapText = GetRandomMapText();
+	const FString MapText = GetRandomMapText();
 	MapText.ParseIntoArrayLines(MapArray);
 
 	return MapArray;
@@ -23,8 +23,8 @@ FString AA2_GoalsGameModeBase::GetRandomMapText()
 {
 	TArray<FString> MapFiles = GetMapFileList();
 
-	int32 MapPosition = FMath::RandRange(0, MapFiles.Num() - 1);
-	FString MapPath = MapFiles[MapPosition];
+	const int32 MapPosition = FMath::RandRange(0, MapFiles.Num() - 1);
+	const FString MapPath = MapFiles[MapPosition];
 
 	FString MapText;
 	FFileHelper::LoadFileToString(MapText, *MapPath);

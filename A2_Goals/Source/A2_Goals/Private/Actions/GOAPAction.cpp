@@ -28,27 +28,27 @@ void GOAPAction::DoReset()
 }
 
 
-void GOAPAction::AddPrecondition(FString _name, bool _state)
+void GOAPAction::AddPrecondition(FString name, bool state)
 {
-	Preconditions.Add(_name, _state);
+	Preconditions.Add(name, state);
 }
 
 
-void GOAPAction::RemovePrecondition(FString _name)
+void GOAPAction::RemovePrecondition(FString name)
 {
-	Preconditions.Remove(_name);
+	Preconditions.Remove(name);
 }
 
 
-void GOAPAction::AddEffect(FString _name, bool _state)
+void GOAPAction::AddEffect(FString name, bool state)
 {
-	Effects.Add(_name, _state);
+	Effects.Add(name, state);
 }
 
 
-void GOAPAction::RemoveEffect(FString _name)
+void GOAPAction::RemoveEffect(FString name)
 {
-	Effects.Remove(_name);
+	Effects.Remove(name);
 }
 
 
@@ -58,7 +58,7 @@ bool GOAPAction::IsInRange() const
 }
 
 
-void GOAPAction::SetInRange(bool _range)
+void GOAPAction::SetInRange(bool range)
 {
-	InRange = _range;
+	InRange = range;
 }

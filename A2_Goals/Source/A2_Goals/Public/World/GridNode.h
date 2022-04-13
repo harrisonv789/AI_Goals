@@ -7,19 +7,15 @@
 
 #include "CoreMinimal.h"
 #include "GridType.h"
-#include "GameFramework/Actor.h"
 
 /**
- * 
+ * Stores information about a specific GridNode in the world
  */
 class A2_GOALS_API GridNode
 {
-
-public:
-
-	GridNode();
-
-	float GetTravelCost() const;
+	
+	/************************************************************/
+	public:
 
 	// Position in Grid
 	int X;
@@ -45,4 +41,15 @@ public:
 
 	// Whether or not the grid square has been checked by the search
 	bool IsChecked;
+
+	/**
+	 * @brief The default constructor of the GridNode
+	 */
+	GridNode();
+
+	/**
+	 * @brief Returns the cost to travel to this grid
+	 * @return The travel cost
+	 */
+	float GetTravelCost() const;
 };

@@ -20,104 +20,187 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	GENERATED_BODY()
 
 	// Maximum Size for World Map
-	static const int MAX_MAP_SIZE = 255;
+	static constexpr int MAX_MAP_SIZE = 255;
 
-public:
+	
+	/************************************************************/
+	public:
 
 	// Grid Size in World Units
-	static const int GRID_SIZE_WORLD = 100;
-	static const int NUM_FOOD = 10;
-	static const int NUM_AGENTS = 5;
+	static constexpr int GRID_SIZE_WORLD = 100;
+	static constexpr int NUM_FOOD = 10;
+	static constexpr int NUM_AGENTS = 5;
 	
 	// Sets default values for this actor's properties
 	ALevelGenerator();
 
+	// Size of the current Map in X coordinates
 	UPROPERTY(BlueprintReadOnly)
-		int MapSizeX;
-	UPROPERTY(BlueprintReadOnly)
-		int MapSizeY;
-	
-	UPROPERTY()
-		TArray<FVector2D> GoldArray;
+	int MapSizeX;
 
+	// Size of the current Map in Y coordinates
+	UPROPERTY(BlueprintReadOnly)
+	int MapSizeY;
+	
 	// This is a 2D Array for holding nodes for each part of the world
 	GridNode* WorldArray[MAX_MAP_SIZE][MAX_MAP_SIZE];
-
+	
+	// A list of gold locations currently in the world
 	UPROPERTY()
-		TArray<AGold*> GoldActors;
+	TArray<FVector2D> GoldArray;
+
+	// A list of gold actors current in the world
+	UPROPERTY()
+	TArray<AGold*> GoldActors;
+
+	// A list of ships
+	TSet<AShip*> ShipFleet;
 
 	// Actors for spawning into the world
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> PathDisplayBlueprint;
+	TSubclassOf<AActor> PathDisplayBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> DeepBlueprint;
+	TSubclassOf<AActor> DeepBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> LandBlueprint;
+	TSubclassOf<AActor> LandBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> ShallowBlueprint;
+	TSubclassOf<AActor> ShallowBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> WoodBlueprint;
+	TSubclassOf<AActor> WoodBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> FruitBlueprint;
+	TSubclassOf<AActor> FruitBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> StoneBlueprint;
+	TSubclassOf<AActor> StoneBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> MerchantBlueprint;
+	TSubclassOf<AActor> MerchantBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> GoldBlueprint;
+	TSubclassOf<AActor> GoldBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> ShipBlueprint;
+	TSubclassOf<AActor> ShipBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		TSubclassOf<AActor> ResourceBlueprint;
+	TSubclassOf<AActor> ResourceBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-		AActor* Camera;
+	AActor* Camera;
 
-protected:
-	// Called when the game starts or when spawned
+	
+	/************************************************************/
+	protected:
+	
+	/**
+	 * @brief Called when the game first starts running
+	 */
 	virtual void BeginPlay() override;
 
-	void SpawnWorldActors(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE]);
+	/**
+	 * @brief Spawns all the actors associated with the grid
+	 * @param grid A character grid
+	 */
+	void SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE]);
 
-	void GenerateNodeGrid(char Grid[MAX_MAP_SIZE][MAX_MAP_SIZE]);
-	void ResetAllNodes();
+	/**
+	 * @brief Generates all of the nodes in some grid
+	 * @param grid A character grid
+	 */
+	void GenerateNodeGrid(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE]);
 
-	float CalculateDistanceBetween(GridNode* first, GridNode* second);
+	/**
+	 * @brief Resets all of the nodes to empty, blank nodes in the grid
+	 */
+	void ResetAllNodes() const;
 
+	/**
+	 * @brief Calculates the nodal distance between two nodes
+	 * @param first The starting node
+	 * @param second The end node
+	 * @return The distance in units
+	 */
+	float CalculateDistanceBetween(GridNode* first, GridNode* second) const;
+
+	/**
+	 * @brief Spawns the next gold on the grid
+	 */
 	void SpawnNextGold();
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
+	/************************************************************/
+	public:
+	
+	/**
+	 * @brief Called every frame time
+	 * @param deltaTime The time between each frame
+	 */
+	virtual void Tick(float deltaTime) override;
+
+	/**
+	 * @brief Generates a new world from a file
+	 * @param worldArray An array of strings for the world
+	 */
 	UFUNCTION(BlueprintCallable)
-		void GenerateWorldFromFile(TArray<FString> WorldArray);
-	
-	//void CalculateBFS();
-	//int SearchCount = 0;
-	//bool IsPathCalculated;
-	//GridNode* StartNode;
-	//GridNode* GoalNode;
+	void GenerateWorldFromFile(TArray<FString> worldArray);
 
-	//void ResetPath();
-	//void RenderPath();
-	//void DetailPath();
-	//void ResetPath();
-	bool IsGoldValid(AGold* CollectedGold);
+	/**
+	 * @brief Checks to see if a selected gold is valid
+	 * @param collectedGold 
+	 * @return A valid flag
+	 */
+	bool IsGoldValid(AGold* collectedGold) const;
+
+	/**
+	 * @brief Collects some gold and removes it from the grid
+	 * @param CollectedGold 
+	 */
 	void CollectGold(AGold* CollectedGold);
-	//AShip* Ship;
 
-	// Assignment 2 Additions
+	/**
+	 * @brief Calculates the path for a ship to travel to some goal
+	 * @param targetShip The ship agent
+	 * @param goalNode The goal to reach
+	 */
+	void CalculatePath(AShip* targetShip, GridNode* goalNode = nullptr);
 
-	// Variables
-	TSet<AShip*> ShipFleet;
-	
-	// Functions
-	void CalculatePath(AShip* TargetShip, GridNode* GoalNode = nullptr);
-	void CalculatePath(AShip* TargetShip, EGridType ResourceType);
-	GridNode* CalculateNearestGoal(int XPos, int YPos, EGridType ResourceType);
-	GridNode* FindGridNode(AActor* ActorResource);
+	/**
+	 * @brief Calculates a path for a ship to travel to some resource
+	 * @param targetShip The ship agent
+	 * @param resourceType The resource (nearest) to reach
+	 */
+	void CalculatePath(AShip* targetShip, EGridType resourceType);
 
-	void ResetPath(AShip* CurrentShip, GridNode* StartNode, GridNode* GoalNode);
-	void DetailPath(AShip* CurrentShip, GridNode* StartNode, GridNode* GoalNode);
-	void RenderPath(AShip* CurrentShip, GridNode* GoalNode);
+	/**
+	 * @brief Finds the nearest goal of some resource type
+	 * @param xPos The X position
+	 * @param yPos The Y position
+	 * @param resourceType The resource looking for
+	 * @return The nearest grid node of some resource
+	 */
+	GridNode* CalculateNearestGoal(int xPos, int yPos, EGridType resourceType);
+
+	/**
+	 * @brief Finds a grid node with some actor reference
+	 * @param actorResource The actor reference
+	 * @return The grid node that contains the actor
+	 */
+	GridNode* FindGridNode(AActor* actorResource) const;
+
+	/**
+	 * @brief Removes all actors on some path
+	 * @param currentShip The ship agent
+	 * @param startNode The start node
+	 * @param goalNode The goal node
+	 */
+	void ResetPath(AShip* currentShip, GridNode* startNode, GridNode* goalNode) const;
+
+	/**
+	 * @brief Spawns all the actors on some path
+	 * @param currentShip The ship agent
+	 * @param startNode The start node
+	 * @param goalNode The end node
+	 */
+	void DetailPath(AShip* currentShip, GridNode* startNode, GridNode* goalNode) const;
+
+	/**
+	 * @brief Renders the path to some goal
+	 * @param currentShip The ship agent
+	 * @param goalNode The target goal node
+	 */
+	void RenderPath(AShip* currentShip, const GridNode* goalNode) const;
 };

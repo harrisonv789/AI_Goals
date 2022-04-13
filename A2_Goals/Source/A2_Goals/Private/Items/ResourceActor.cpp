@@ -8,7 +8,7 @@
 // Sets default values
 AResourceActor::AResourceActor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 
 	ResourceCount = 500;
@@ -18,13 +18,11 @@ AResourceActor::AResourceActor()
 void AResourceActor::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
-void AResourceActor::Tick(float DeltaTime)
+void AResourceActor::Tick(float deltaTime)
 {
-	Super::Tick(DeltaTime);
-
+	Super::Tick(deltaTime);
 }
 
