@@ -5,6 +5,7 @@
 
 #include "Agents/Ship.h"
 
+#include "Actions/CollectResourceAction.h"
 #include "Actions/CollectTreasureAction.h"
 #include "Planning/GOAPPlanner.h"
 #include "Actions/GOAPAction.h"
@@ -27,6 +28,13 @@ AShip::AShip()
 	treasureAction->AddPrecondition("HasMorale", false);
 	treasureAction->AddEffect("HasMorale", true);
 	AvailableActions.Add(treasureAction);
+
+	// Add in the collecting resource action
+	CollectResourceAction* resourceAction = new CollectResourceAction(ResourceType);
+	resourceAction->AddPrecondition("HasMorale", true);
+	resourceAction->AddPrecondition("HasResource", false);
+	resourceAction->AddEffect("HasResource", true);
+	//AvailableActions.Add(resourceAction);
 	
 	// Create the new state machine and register the states
 	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
@@ -280,7 +288,10 @@ TMap<FString, bool> AShip::GetWorldState()
 	TMap<FString, bool> worldState;
 
 	// Add in a morale flag
-	worldState.Add("HasMorale", Morale > TargetMorale);
+	worldState.Add("HasMorale", IsMoraleReached());
+
+	// TODO: Update with the actual resource
+	//worldState.Add("HasResource", false);
 
 	// Returns the state
 	return worldState;
@@ -294,6 +305,9 @@ TMap<FString, bool> AShip::GetGoalState()
 
 	// Make sure the morale is valid
 	goalState.Add("HasMorale", true);
+
+	// TODO: Update with the real goal
+	//goalState.Add("HasResource", true);
 
 	// Returns the state
 	return goalState;
@@ -319,4 +333,59 @@ void AShip::Tick(float deltaTime)
 
 	// Tick the state machine
 	ActionStateMachine->Tick(deltaTime);
+}
+
+
+EGridType AShip::GetResourceType() const
+{
+	return ResourceType;
+}
+
+
+int AShip::GetResourceCollected() const
+{
+	switch (ResourceType)
+	{
+		case FRUIT_RESOURCE:
+			return NumFruit;
+		case STONE_RESOURCE:
+			return NumStone;
+		case WOOD_RESOURCE:
+			return NumWood;
+		default:
+			return 0;
+	}
+}
+
+
+int AShip::GetResourcesRequired() const
+{
+	// TODO: Fix this number
+	return 50;
+}
+
+
+FString AShip::GetShipName() const
+{
+	FString merchantName = "Missing";
+	switch (ResourceType)
+	{
+		case FRUIT_RESOURCE:
+			merchantName = "Fruit"; break;
+		case STONE_RESOURCE:
+			merchantName = "Stone"; break;
+		case WOOD_RESOURCE:
+			merchantName = "Wood"; break;
+		default:
+			break;
+	}
+
+	// Return a formatted name
+	return FString::Printf(TEXT("Ship #%02d : %s Merchant"), ShipNumber + 1, ToCStr(merchantName));
+}
+
+
+bool AShip::IsMoraleReached() const
+{
+	return Morale > TargetMorale;
 }

@@ -11,7 +11,7 @@
 CollectTreasureAction::CollectTreasureAction()
 {
 	// Reset the action
-	Reset();
+	CollectTreasureAction::Reset();
 }
 
 
@@ -47,9 +47,9 @@ bool CollectTreasureAction::CheckProceduralPreconditions(AShip* ship)
 	}
 
 	// Calculate the nearest gold node
-	GridNode* goalNode = ship->Level->CalculateNearestGoal(ship->XPos, ship->YPos, EGridType::GOLD_RESOURCE);
+	GridNode* goalNode = ship->Level->CalculateNearestGoal(ship->XPos, ship->YPos, GOLD_RESOURCE);
 
-	// Check if the resource exiss
+	// Check if the resource exists
 	if (!goalNode || !goalNode->ResourceAtLocation)
 		return false;
 
@@ -57,9 +57,10 @@ bool CollectTreasureAction::CheckProceduralPreconditions(AShip* ship)
 	Target = goalNode->ResourceAtLocation;
 
 	// Get the distance to the target
-	FVector distance = ship->GetActorLocation() - Target->GetActorLocation();
+	const FVector distance = ship->GetActorLocation() - Target->GetActorLocation();
 
 	// Check if the distance is less than some amount
+	// TODO update with some actual collision system
 	SetInRange(distance.Size() <= 5);
 
 	// Return a success
@@ -82,9 +83,10 @@ bool CollectTreasureAction::PerformAction(AShip* ship, float deltaTime)
 	// Check the action time
 	if (ActionTime >= TimeToCollect)
 	{
-		// Increase the morale
+		// Increase the morale and gold
 		TreasureGathered++;
 		ship->Morale = 200;
+		ship->NumGold++;
 		ship->Level->CollectGold(goldResource);
 
 		// Remove the target

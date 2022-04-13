@@ -11,6 +11,7 @@
 #include "World/LevelGenerator.h"
 #include "Planning/StateMachine.h"
 #include "Actions/GOAPAction.h"
+#include "World/GridType.h"
 #include "Ship.generated.h"
 
 /**
@@ -59,6 +60,10 @@ class A2_GOALS_API AShip : public AActor
 	UPROPERTY()
 	ALevelGenerator* Level;
 
+	// The ship number
+	UPROPERTY(BlueprintReadOnly)
+	int ShipNumber;
+
 	// The current ships Morale
 	UPROPERTY(BlueprintReadOnly)
 	int Morale = 100;
@@ -86,6 +91,7 @@ class A2_GOALS_API AShip : public AActor
 	TArray<AActor*> PathDisplayActors;
 
 	// The maximum time the ship can remain in an idle state
+	UPROPERTY(EditAnywhere, Category = "Stats")
 	float MaxIdleTime;
 
 	// The current time the ship has remained idling
@@ -102,6 +108,10 @@ class A2_GOALS_API AShip : public AActor
 	// Stores the number of each fruit collected
 	UPROPERTY(BlueprintReadOnly)
 	int NumFruit;
+
+	// Stores the number of gold collected
+	UPROPERTY(BlueprintReadOnly)
+	int NumGold;
 
 	
 	/************************************************************/
@@ -198,4 +208,39 @@ class A2_GOALS_API AShip : public AActor
 	 * @param deltaTime The time-step [s]
 	 */
 	virtual void Tick(float deltaTime) override;
+
+	/**
+	 * @brief Returns the current resource type the ship looks for
+	 * @return The Resource Type the ship is looking for
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Resources")
+	EGridType GetResourceType () const;
+	
+	/**
+	 * @brief Returns the number of resources currently collected
+	 * @return The number of resources collected
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Resources")
+	int GetResourceCollected () const;
+	
+	/**
+	 * @brief Returns the number of resources acquired
+	 * @return The number of resources required
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Resources")
+	int GetResourcesRequired () const;
+
+	/**
+	 * @brief Returns the name of the ship
+	 * @return The name of the ship
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	FString GetShipName () const;
+
+	/**
+	 * @brief Returns whether or not the morale has been reached
+	 * @return A flag for whether or not the morale is reached
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsMoraleReached () const;
 };

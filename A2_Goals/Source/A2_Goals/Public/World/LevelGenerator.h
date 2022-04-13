@@ -28,8 +28,8 @@ class A2_GOALS_API ALevelGenerator : public AActor
 
 	// Grid Size in World Units
 	static constexpr int GRID_SIZE_WORLD = 100;
-	static constexpr int NUM_FOOD = 10;
-	static constexpr int NUM_AGENTS = 5;
+	static constexpr int NUM_GOLD = 10;
+	static constexpr int NUM_AGENTS = 6;
 	
 	// Sets default values for this actor's properties
 	ALevelGenerator();
@@ -54,6 +54,7 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	TArray<AGold*> GoldActors;
 
 	// A list of ships
+	UPROPERTY(BlueprintReadOnly)
 	TSet<AShip*> ShipFleet;
 
 	// Actors for spawning into the world
@@ -79,8 +80,14 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	TSubclassOf<AActor> ShipBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
 	TSubclassOf<AActor> ResourceBlueprint;
-	UPROPERTY(EditAnywhere, Category = "Entities")
+
+	// The static camera actor
+	UPROPERTY(EditAnywhere, Category = "Camera")
 	AActor* Camera;
+
+	// The offset to move the camera
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	FVector CameraPositionOffset = FVector(0, 0, 3600);
 
 	
 	/************************************************************/

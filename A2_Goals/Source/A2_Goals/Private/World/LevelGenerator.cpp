@@ -49,7 +49,7 @@ void ALevelGenerator::Tick(float deltaTime)
 	}
 
 	// Spawns the next gold
-	if(GoldActors.Num() < NUM_FOOD)
+	if(GoldActors.Num() < NUM_GOLD)
 	{
 		SpawnNextGold();
 	}
@@ -174,7 +174,7 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 				randXPos = FMath::RandRange(0, MapSizeX - 1);
 				randYPos = FMath::RandRange(0, MapSizeY - 1);
 
-				if (WorldArray[randXPos][randYPos]->GridType == EGridType::DEEP_WATER && WorldArray[randXPos][randYPos]->ObjectAtLocation == nullptr)
+				if (WorldArray[randXPos][randYPos]->GridType == DEEP_WATER && WorldArray[randXPos][randYPos]->ObjectAtLocation == nullptr)
 				{
 					isFree = true;
 				}
@@ -187,15 +187,27 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 
 			agent->XPos = randXPos;
 			agent->YPos = randYPos;
+
+			// Set the resource type
+			if (i % 3 == 0)
+				agent->ResourceType = FRUIT_RESOURCE;
+			else if (i % 3 == 1)
+				agent->ResourceType = STONE_RESOURCE;
+			else
+				agent->ResourceType = WOOD_RESOURCE;
+
+			// Set the ship index
+			agent->ShipNumber = i;
 			
 			ShipFleet.Add(agent);
 			WorldArray[randXPos][randYPos]->ObjectAtLocation = agent;
 		}
 	}
 
+	// Generates some gold in the world
 	if (GoldBlueprint)
 	{
-		for(int i = 0; i < NUM_FOOD; i++)
+		for(int i = 0; i < NUM_GOLD; i++)
 		{
 			int randXPos = 0;
 			int randYPos = 0;
@@ -220,12 +232,15 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 	}
 
 	// Set Static Camera Position
-	if(Camera)
+	if (Camera)
 	{
-		FVector cameraPosition = Camera->GetActorLocation();
+		FVector cameraPosition = FVector();
 		
 		cameraPosition.X = MapSizeX * 0.5 * GRID_SIZE_WORLD;
 		cameraPosition.Y = MapSizeY * 0.5 * GRID_SIZE_WORLD;
+
+		// Add the offset
+		cameraPosition += CameraPositionOffset;
 		
 		Camera->SetActorLocation(cameraPosition);
 	}
