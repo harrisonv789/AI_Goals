@@ -409,3 +409,21 @@ bool AShip::IsMoraleReached() const
 {
 	return Morale > TargetMorale;
 }
+
+void AShip::DepositFruit(int num)
+{
+	NumFruit -= num;
+	Level->TotalFruitCollected += num;
+}
+
+void AShip::DepositStone(int num)
+{
+	NumStone -= num;
+	Level->TotalStoneCollected += num;
+}
+
+void AShip::DepositWood(int num)
+{
+	NumWood -= num;
+	Level->TotalWoodCollected += num;
+}

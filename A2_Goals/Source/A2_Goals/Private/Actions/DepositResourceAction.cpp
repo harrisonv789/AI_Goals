@@ -92,13 +92,13 @@ bool DepositResourceAction::PerformAction(AShip* ship, float deltaTime)
 		switch (ResourceType)
 		{
 			case WOOD_RESOURCE:
-				ship->NumWood--;
+				ship->DepositWood();
 				break;
 			case STONE_RESOURCE:
-				ship->NumStone--;
+				ship->DepositStone();
 				break;
 			case FRUIT_RESOURCE:
-				ship->NumFruit--;
+				ship->DepositFruit();
 				break;
 
 			// No default case

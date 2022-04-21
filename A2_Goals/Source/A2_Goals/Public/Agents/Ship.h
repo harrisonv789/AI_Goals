@@ -249,4 +249,22 @@ class A2_GOALS_API AShip : public AActor
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	bool IsMoraleReached () const;
+
+	/**
+	 * @brief Deposits fruit to the home base
+	 * @param num The number of fruit to deposit
+	 */
+	void DepositFruit (int num = 1);
+
+	/**
+	 * @brief Deposits stone to the home base
+	 * @param num The number of stone to deposit
+	 */
+	void DepositStone (int num = 1);
+
+	/**
+	 * @brief Deposits wood to the home base
+	 * @param num The number of wood to deposit
+	 */
+	void DepositWood (int num = 1);
 };
