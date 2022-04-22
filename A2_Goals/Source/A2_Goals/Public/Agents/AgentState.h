@@ -14,5 +14,6 @@ enum EAgentState
 	NOTHING				= 0,
 	IDLE				= 1,
 	MOVE				= 2,
-	ACTION				= 3
+	ACTION				= 3,
+	COMPLETE			= 4,
 };

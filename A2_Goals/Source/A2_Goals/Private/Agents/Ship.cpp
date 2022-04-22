@@ -35,6 +35,7 @@ AShip::AShip()
 	ActionStateMachine->RegisterState(IDLE, &AShip::OnIdleEnter, &AShip::OnIdleTick, &AShip::OnIdleExit);
 	ActionStateMachine->RegisterState(MOVE, &AShip::OnMoveEnter, &AShip::OnMoveTick, &AShip::OnMoveExit);
 	ActionStateMachine->RegisterState(ACTION, &AShip::OnActionEnter, &AShip::OnActionTick, &AShip::OnActionExit);
+	ActionStateMachine->RegisterState(COMPLETE, &AShip::OnCompleteEnter, &AShip::OnCompleteTick, &AShip::OnCompleteExit);
 	ActionStateMachine->ChangeState(IDLE);
 }
 
@@ -93,10 +94,19 @@ void AShip::OnIdleTick(float deltaTime)
 		}
 
 		// In this state, we look to create a plan. Get the world state
-		const TMap<FString, bool> worldState = GetWorldState();
+		TMap<FString, bool> worldState = GetWorldState();
 
 		// Get the desired goal state
-		const TMap<FString, bool> goalState = GetGoalState();
+		TMap<FString, bool> goalState = GetGoalState();
+
+		// Check if completed
+		if (GOAPPlanner::CheckConditionsInState(goalState, worldState))
+		{
+			// Finished the mission
+			ActionStateMachine->ChangeState(COMPLETE);
+
+			return;
+		}
 
 		// Attempt to make the plan and check success
 		if (GOAPPlanner::Plan(this, AvailableActions, CurrentActions, worldState, goalState))
@@ -176,11 +186,11 @@ void AShip::OnMoveEnter()
 			FinishedMoving = true;
 			UE_LOG(LogTemp, Warning, TEXT("Failed to find a path for %s"), *GetName());
 
-			// Change to the Idle
-			ActionStateMachine->ChangeState(IDLE);
-
 			// Update the path retries
 			PathRetries += 1;
+
+			// Change to the Idle
+			ActionStateMachine->ChangeState(IDLE);
 
 			return;
 		}
@@ -206,34 +216,29 @@ void AShip::OnMoveTick(float deltaTime)
 		if (Path.Num() > 0)
 		{
 			// Get the current node at the world
-			const GridNode* targetWorldNode = Level->WorldArray[Path[0]->X][Path[0]->Y];
-			const GridNode* followingWorldNode = Path.Num() > 1 ? Level->WorldArray[Path[1]->X][Path[1]->Y] : nullptr;
 			const GridNode* goalWorldNode = currentAction->TargetNode;
+
+			// A flag for if a collision will occur
+			bool willCollide = false;
 			
-			// Check if the next path has an agent now
-			// Or, if the final goal has an agent there, we need to remap
-			if ((targetWorldNode->AgentAtLocation != nullptr && targetWorldNode->AgentAtLocation != this)
-				|| (goalWorldNode->AgentAtLocation != nullptr && Cast<AShip>(goalWorldNode->AgentAtLocation)->GoalNode == goalWorldNode)
-				|| (followingWorldNode != nullptr && followingWorldNode->AgentAtLocation != nullptr && followingWorldNode->AgentAtLocation != this))
+			// Check if the final goal node has a finished agent
+			if (!willCollide)
+				willCollide = goalWorldNode->AgentAtLocation != nullptr && Cast<AShip>(goalWorldNode->AgentAtLocation)->GoalNode == goalWorldNode;
+
+			// Check if any of the next [x] positions will have a collision
+			for (int i = 0; i < 4; i ++)
 			{
-
-				// Delete all path actors once the goal is reached
-				for (const auto pathObject : PathDisplayActors)
-					pathObject->Destroy();
-
-				// Remove the empty references
-				PathDisplayActors.Empty();
-				Path.Empty();
-
-				// Finished moving
-				FinishedMoving = true;
-
-				// Log error on change
-				UE_LOG(LogTemp, Warning, TEXT("%s found another agent in the way. Planning another route."), *GetName());
-
-				// Return the changing back to path planning
-				ActionStateMachine->ChangeState(MOVE);
-
+				const GridNode* nextGridNode = Path.Num() > i ? Level->WorldArray[Path[i]->X][Path[i]->Y] : nullptr;
+				if (!willCollide && nextGridNode)
+					willCollide = nextGridNode->AgentAtLocation != nullptr && nextGridNode->AgentAtLocation != this;
+			}
+			
+			// If a collision occurred
+			if (willCollide)
+			{
+				// Handle a collision
+				HandleCollision();
+				
 				// Return from this tick
 				return;
 			}
@@ -263,23 +268,32 @@ void AShip::OnMoveTick(float deltaTime)
 			// Check if the distance to the next position is close enough
 			if (FVector::Dist(currentPosition, targetPosition) <= Tolerance)
 			{
-				// Update the agent's location on the grid node
-				Level->UpdateAgentLocation(this, XPos, YPos, Path[0]->X, Path[0]->Y);
-				
-				// Update the current position and path
-				XPos = Path[0]->X;
-				YPos = Path[0]->Y;
+				// Ensure path still exists
+				if (Path.Num() > 0)
+				{
+					// Update the agent's location on the grid node
+					Level->UpdateAgentLocation(this, XPos, YPos, Path[0]->X, Path[0]->Y);
+					
+					// Update the current position and path
+					XPos = Path[0]->X;
+					YPos = Path[0]->Y;
 
-				// Set the current position to the exact target position
-				currentPosition = targetPosition;
-				SetActorLocation(currentPosition);
+					// Set the current position to the exact target position
+					currentPosition = targetPosition;
+					SetActorLocation(currentPosition);
 
-				// Remove the path and actors that exist here
-				Path.RemoveAt(0);
-				PathDisplayActors.Pop()->Destroy();
+					// Remove the path and actors that exist here
+					// Sometimes a collision will be triggered by the actor and remove a path
+					if (Path.Num() > 0)
+					{
+						Path.RemoveAt(0);
+						if (PathDisplayActors.Num() > 0)
+							PathDisplayActors.Pop()->Destroy();
+					}
 
-				// Subtract a morale
-				Morale--;
+					// Subtract a morale
+					Morale--;
+				}
 			}
 		}
 
@@ -402,6 +416,48 @@ void AShip::OnActionExit()
 	
 }
 
+void AShip::OnCompleteEnter()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s - Actions are completed!"), *GetName());
+}
+
+void AShip::OnCompleteTick(float deltaTime)
+{
+}
+
+void AShip::OnCompleteExit()
+{
+}
+
+
+void AShip::HandleCollision(bool collider)
+{
+	// Delete all path actors once the goal is reached
+	for (const auto pathObject : PathDisplayActors)
+		pathObject->Destroy();
+
+	// Remove the empty references
+	PathDisplayActors.Empty();
+	Path.Empty();
+
+	// Log error on change
+	UE_LOG(LogTemp, Warning, TEXT("%s found another agent in the way. Planning another route."), *GetName());
+
+	// If detected a future collision
+	if (!collider)
+	{
+		// Return the changing back to path planning
+		ActionStateMachine->ChangeState(MOVE);
+	}
+
+	// If a collider got hit, stop
+	else
+	{
+		// Return the changing back to goal planning
+		ActionStateMachine->ChangeState(IDLE);
+	}
+}
+
 
 TMap<FString, bool> AShip::GetWorldState()
 {
@@ -411,11 +467,11 @@ TMap<FString, bool> AShip::GetWorldState()
 	// Add in a morale flag
 	worldState.Add("HasMorale", IsMoraleReached() && !LookForGold);
 
-	// TODO: Update with the actual resource
+	// Add in resource collected flag
 	worldState.Add("CollectedResource", GetResourceCollected() > 0);
 
-	// TODO: Update this with the home base information
-	worldState.Add("ResourcesDeposited", false);
+	// Add in the final deposited world state
+	worldState.Add("ResourcesDeposited", !Level->ResourcesExist(ResourceType));
 
 	// Returns the state
 	return worldState;
@@ -546,6 +602,13 @@ void AShip::NotifyActorBeginOverlap(AActor* otherActor)
 	{
 		// Ensure the treasure from being in range
 		TreasureAction->SetInRange(true);
+	}
+	
+	// If it is another ship
+	else if (otherActor->IsA(AShip::StaticClass()))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Ship has overlapped a collision!"));
+		HandleCollision(true);
 	}
 }
 

@@ -165,7 +165,7 @@ class A2_GOALS_API AShip : public AActor
 	 * @brief Called when the MOVE state is entered
 	 */
 	void OnMoveEnter ();
-
+	
 	/**
 	 * @brief Called when the MOVE state is ticked
 	 * @param deltaTime The time-step [s]
@@ -192,6 +192,28 @@ class A2_GOALS_API AShip : public AActor
 	 * @brief Called when the ACTION state is exited
 	 */
 	void OnActionExit ();
+
+	/**
+	 * @brief Called when the COMPLETE state is entered
+	 */
+	void OnCompleteEnter ();
+	
+	/**
+	 * @brief Called when the COMPLETE state is ticked
+	 * @param deltaTime The time-step [s]
+	 */
+	void OnCompleteTick (float deltaTime);
+
+	/**
+	 * @brief Called when the COMPLETE state is exited
+	 */
+	void OnCompleteExit ();
+
+	/**
+	 * @brief Handles collision of two agents
+	 * @param collider Whether a collider has been hit - switch to idle
+	 */
+	void HandleCollision(bool collider = false);
 
 	/**
 	 * @brief Determines the current state of the ship in the world

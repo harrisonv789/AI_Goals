@@ -39,7 +39,9 @@ void CollectResourceAction::Reset()
 bool CollectResourceAction::IsActionDone()
 {
 	// Return whether or not the treasure is complete
-	return ResourceGathered >= ResourceToGather;
+	const bool resourcesUsed = Target && Target->IsA(AResourceActor::StaticClass()) &&
+		!Cast<AResourceActor>(Target)->HasResources();
+	return ResourceGathered >= ResourceToGather || resourcesUsed;
 }
 
 
@@ -55,6 +57,12 @@ bool CollectResourceAction::CheckProceduralPreconditions(AShip* ship)
 	// Check if the resource exists
 	if (!goalNode || !goalNode->ResourceAtLocation)
 		return false;
+
+	// If the resources don't exist
+	if (goalNode->ResourceAtLocation &&
+		goalNode->ResourceAtLocation->IsA(AResourceActor::StaticClass()) &&
+		!Cast<AResourceActor>(goalNode->ResourceAtLocation)->HasResources())
+			return false;
 
 	// Get the target
 	Target = goalNode->ResourceAtLocation;
@@ -84,6 +92,20 @@ bool CollectResourceAction::PerformAction(AShip* ship, float deltaTime)
 	if (!resourceActor)
 		return false;
 
+	// If the resources don't exist anymore
+	if (!resourceActor->HasResources())
+	{
+		// Remove the target
+		Target = nullptr;
+		TargetNode = nullptr;
+			
+		// Decrease the morale
+		ship->Morale--;
+
+		// Say done
+		return true;
+	}
+
 	// Check the action time
 	if (ActionTime >= TimeToCollect)
 	{
@@ -104,6 +126,9 @@ bool CollectResourceAction::PerformAction(AShip* ship, float deltaTime)
 			default:
 				break;
 		}
+
+		// Take a resource from the actor
+		resourceActor->TakeResource();
 
 		// Increase the current resource gathered
 		ResourceGathered++;

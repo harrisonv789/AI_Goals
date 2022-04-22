@@ -42,7 +42,7 @@ void DepositResourceAction::Reset()
 bool DepositResourceAction::IsActionDone()
 {
 	// Return whether or not the treasure is complete
-	return ResourcesDeposited >= ResourcesToDeposit;
+	return ResourcesDeposited >= ResourcesToDeposit || !Target;
 }
 
 
@@ -86,6 +86,18 @@ bool DepositResourceAction::PerformAction(AShip* ship, float deltaTime)
 	// Check if the resource is invalid
 	if (!resourceActor)
 		return false;
+
+	// If no resources left
+	if (ship->GetResourceCollected() <= 0)
+	{
+		// Remove the target
+		Target = nullptr;
+		TargetNode = nullptr;
+			
+		// Decrease the morale
+		ship->Morale--;
+		return true;
+	}
 
 	// Check the action time
 	if (ActionTime >= TimeToDeposit)

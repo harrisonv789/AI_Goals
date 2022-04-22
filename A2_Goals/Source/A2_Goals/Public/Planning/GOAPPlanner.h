@@ -45,15 +45,6 @@ class GOAPPlanner
 		GOAPAction* removeAction);
 
 	/**
-	 * @brief Function compares a set of conditions to a state
-	 * @param conditions A list of all conditions to check
-	 * @param state The current state(s) to check
-	 * @return Whether the condition exists within a state
-	 */
-	static bool CheckConditionsInState (TMap<FString, bool>& conditions,
-		TMap<FString, bool>& state);
-
-	/**
 	 * @brief Combines a current state with a change (or effects) of an action
 	 * @param currentState A list of the current state keys and values
 	 * @param changes A list of all state changes that have occurred
@@ -65,6 +56,15 @@ class GOAPPlanner
 	
 	/************************************************************/
 	public:
+
+	/**
+	 * @brief Function compares a set of conditions to a state
+	 * @param conditions A list of all conditions to check
+	 * @param state The current state(s) to check
+	 * @return Whether the condition exists within a state
+	 */
+	static bool CheckConditionsInState (TMap<FString, bool>& conditions,
+		TMap<FString, bool>& state);
 	
 	/**
 	 * @brief Generates the action plan

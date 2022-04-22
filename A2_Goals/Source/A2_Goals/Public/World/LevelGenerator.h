@@ -9,6 +9,7 @@
 #include "Items/Gold.h"
 #include "GameFramework/Actor.h"
 #include "GridNode.h"
+#include "Items/ResourceActor.h"
 #include "LevelGenerator.generated.h"
 
 // Resolves a circular dependency
@@ -32,7 +33,7 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	// Grid Size in World Units
 	static constexpr int GRID_SIZE_WORLD = 100;
 	static constexpr int NUM_GOLD = 10;
-	static constexpr int NUM_AGENTS = 6;
+	static constexpr int NUM_AGENTS = 3;
 	
 	// Sets default values for this actor's properties
 	ALevelGenerator();
@@ -72,19 +73,19 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	UPROPERTY(EditAnywhere, Category = "Entities")
 	TSubclassOf<AActor> HomeBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-	TSubclassOf<AActor> WoodBlueprint;
+	TSubclassOf<AResourceActor> WoodBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-	TSubclassOf<AActor> FruitBlueprint;
+	TSubclassOf<AResourceActor> FruitBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-	TSubclassOf<AActor> StoneBlueprint;
+	TSubclassOf<AResourceActor> StoneBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
-	TSubclassOf<AActor> MerchantBlueprint;
+	TSubclassOf<AResourceActor> MerchantBlueprint;
+	UPROPERTY(EditAnywhere, Category = "Entities")
+	TSubclassOf<AActor> FloorBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
 	TSubclassOf<AActor> GoldBlueprint;
 	UPROPERTY(EditAnywhere, Category = "Entities")
 	TSubclassOf<AActor> ShipBlueprint;
-	UPROPERTY(EditAnywhere, Category = "Entities")
-	TSubclassOf<AActor> ResourceBlueprint;
 
 	// The static camera actor
 	UPROPERTY(EditAnywhere, Category = "Camera")
@@ -98,13 +99,25 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	UPROPERTY(BlueprintReadOnly)
 	int TotalFruitCollected;
 
+	// The total number of fruit available
+	UPROPERTY(BlueprintReadOnly)
+	int TotalFruitAvailable;
+
 	// The total number of stone collected
 	UPROPERTY(BlueprintReadOnly)
 	int TotalStoneCollected;
 
+	// The total number of stone available
+	UPROPERTY(BlueprintReadOnly)
+	int TotalStoneAvailable;
+
 	// The total number of wood collected
 	UPROPERTY(BlueprintReadOnly)
 	int TotalWoodCollected;
+
+	// The total number of wood available
+	UPROPERTY(BlueprintReadOnly)
+	int TotalWoodAvailable;
 
 	// The current time of the simulation
 	UPROPERTY(BlueprintReadOnly)
@@ -198,10 +211,10 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	 * @param xPos The X position
 	 * @param yPos The Y position
 	 * @param resourceType The resource looking for
-	 * @param ignoreAgents Whether to ignore agents that are on locations
+	 * @param forceFind Whether to force a location to find if none are found
 	 * @return The nearest grid node of some resource
 	 */
-	GridNode* CalculateNearestGoal(int xPos, int yPos, EGridType resourceType, bool ignoreAgents = false);
+	GridNode* CalculateNearestGoal(int xPos, int yPos, EGridType resourceType, bool forceFind = false);
 
 	/**
 	 * @brief Finds a grid node with some actor reference
@@ -241,4 +254,11 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	 */
 	UFUNCTION(BlueprintCallable)
 	void TrackAgent (AShip* agent);
+
+	/**
+	 * @brief Determines whether or not resources of some type still exist
+	 * @param resource The resource to check
+	 * @return Whether resources still exist
+	 */
+	bool ResourcesExist (EGridType resource) const;
 };

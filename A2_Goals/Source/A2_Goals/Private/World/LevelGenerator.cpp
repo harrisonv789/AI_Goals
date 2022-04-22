@@ -13,7 +13,6 @@ ALevelGenerator::ALevelGenerator()
 {
  	// Set this actor to call Tick() every frame. 
 	PrimaryActorTick.bCanEverTick = true;
-	ResourceBlueprint = AResourceActor::StaticClass();
 }
 
 
@@ -29,36 +28,8 @@ void ALevelGenerator::Tick(float deltaTime)
 {
 	Super::Tick(deltaTime);
 
-	bool resetMovement = true;
-
-	/*
-	for(const auto ship : ShipFleet)
-	{
-		if(!ship->FinishedMoving)
-		{
-			resetMovement = false;
-		}
-	}
-
-	// If resetting its current movement
-	if(resetMovement)
-	{
-		for(const auto ship : ShipFleet)
-		{
-			ship->FinishedMoving = false;
-		}
-	}
-	*/
-
-	// Spawns the next gold
-	if(GoldActors.Num() < NUM_GOLD)
-	{
-		SpawnNextGold();
-	}
-
 	// Update the current time
 	CurrentTime += deltaTime;
-	
 	
 }
 
@@ -104,7 +75,8 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 	UWorld* world = GetWorld();
 
 	// Make sure that all blueprints are connected. If not then fail
-	if(DeepBlueprint && ShallowBlueprint && LandBlueprint && WoodBlueprint && StoneBlueprint && FruitBlueprint && MerchantBlueprint)
+	if(DeepBlueprint && ShallowBlueprint && LandBlueprint && WoodBlueprint && StoneBlueprint && FruitBlueprint
+		&& MerchantBlueprint && FloorBlueprint)
 	{
 		AResourceActor* tempResource;
 		
@@ -118,6 +90,9 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 
 				FVector position(xPos, yPos, 0);
 
+				// Spawn the floor below the world
+				world->SpawnActor(FloorBlueprint, &position, &FRotator::ZeroRotator);
+
 				switch (grid[x][y])
 				{
 					case '.':
@@ -127,40 +102,38 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 						world->SpawnActor(LandBlueprint, &position, &FRotator::ZeroRotator);
 						break;
 					case 'H':
-						world->SpawnActor(HomeBlueprint, &position, &FRotator::ZeroRotator);
-						tempResource = Cast<AResourceActor>(world->SpawnActor(ResourceBlueprint, &position, &FRotator::ZeroRotator));
+						tempResource = Cast<AResourceActor>(world->SpawnActor(HomeBlueprint, &position, &FRotator::ZeroRotator));
 						tempResource->ResourceType = HOME;
 						tempResource->XPos = x;
 						tempResource->YPos = y;
 						WorldArray[x][y]->ResourceAtLocation = tempResource;
 						break;
 					case 'W':
-						world->SpawnActor(WoodBlueprint, &position, &FRotator::ZeroRotator);
-						tempResource = Cast<AResourceActor>(world->SpawnActor(ResourceBlueprint, &position, &FRotator::ZeroRotator));
+						tempResource = Cast<AResourceActor>(world->SpawnActor(WoodBlueprint, &position, &FRotator::ZeroRotator));
 						tempResource->ResourceType = EGridType::WOOD_RESOURCE;
 						tempResource->XPos = x;
 						tempResource->YPos = y;
+						TotalWoodAvailable += tempResource->ResourceCount;
 						WorldArray[x][y]->ResourceAtLocation = tempResource;
 						break;
 					case 'S':
-						world->SpawnActor(StoneBlueprint, &position, &FRotator::ZeroRotator);
-						tempResource = Cast<AResourceActor>(world->SpawnActor(ResourceBlueprint, &position, &FRotator::ZeroRotator));
+						tempResource = Cast<AResourceActor>(world->SpawnActor(StoneBlueprint, &position, &FRotator::ZeroRotator));
 						tempResource->ResourceType = EGridType::STONE_RESOURCE;
 						tempResource->XPos = x;
 						tempResource->YPos = y;
+						TotalStoneAvailable += tempResource->ResourceCount;
 						WorldArray[x][y]->ResourceAtLocation = tempResource;
 						break;
 					case 'F':
-						world->SpawnActor(FruitBlueprint, &position, &FRotator::ZeroRotator);
-						tempResource = Cast<AResourceActor>(world->SpawnActor(ResourceBlueprint, &position, &FRotator::ZeroRotator));
+						tempResource = Cast<AResourceActor>(world->SpawnActor(FruitBlueprint, &position, &FRotator::ZeroRotator));
 						tempResource->ResourceType = EGridType::FRUIT_RESOURCE;
 						tempResource->XPos = x;
 						tempResource->YPos = y;
+						TotalFruitAvailable += tempResource->ResourceCount;
 						WorldArray[x][y]->ResourceAtLocation = tempResource;
 						break;
 					case 'M':
-						world->SpawnActor(MerchantBlueprint, &position, &FRotator::ZeroRotator);
-						tempResource = Cast<AResourceActor>(world->SpawnActor(ResourceBlueprint, &position, &FRotator::ZeroRotator));
+						tempResource = Cast<AResourceActor>(world->SpawnActor(MerchantBlueprint, &position, &FRotator::ZeroRotator));
 						tempResource->ResourceType = EGridType::MERCHANT_RESOURCE;
 						tempResource->XPos = x;
 						tempResource->YPos = y;
@@ -201,7 +174,7 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 			agent->YPos = randYPos;
 
 			// Set the resource type
-			if (i % 3 == 0)
+			if (i % 3 == 0 || true)
 				agent->SetResourceTarget(FRUIT_RESOURCE);
 			else if (i % 3 == 1)
 				agent->SetResourceTarget(STONE_RESOURCE);
@@ -383,9 +356,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 	// Otherwise create the first node to visit
 	else
 	{
-		const int startXPos = targetShip->GetActorLocation().X / GRID_SIZE_WORLD;
-		const int startYPos = targetShip->GetActorLocation().Y / GRID_SIZE_WORLD;
-		startNode = WorldArray[startXPos][startYPos];
+		startNode = WorldArray[targetShip->XPos][targetShip->YPos];
 		startNode->IsChecked = true;
 		nodesToVisit.Enqueue(startNode);
 	}
@@ -403,7 +374,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 
 		// Check the left neighbour
 		// Check to ensure not out of range
-		if (currentNode->Y - 1 > 0)
+		if (currentNode->Y - 1 >= 0)
 		{
 			// Get the Left neighbor from the list
 			tempNode = WorldArray[currentNode->X][currentNode->Y - 1];
@@ -448,7 +419,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 
 		// Check the bottom neighbour
 		// Check to ensure not out of range
-		if (currentNode->X - 1 > 0)
+		if (currentNode->X - 1 >= 0)
 		{
 			// Get the bottom neighbor from the list
 			tempNode = WorldArray[currentNode->X - 1][currentNode->Y];
@@ -513,6 +484,8 @@ void ALevelGenerator::RenderPath(AShip* currentShip, const GridNode* goalNode) c
 		tempNode->X = currentNode->X;
 		tempNode->Y = currentNode->Y;
 		tempNode->Parent = currentNode->Parent;
+		tempNode->ResourceAtLocation = currentNode->ResourceAtLocation;
+		tempNode->ObjectAtLocation = currentNode->ObjectAtLocation;
 		tempNode->AgentAtLocation = currentNode->AgentAtLocation;
 		
 		currentShip->Path.EmplaceAt(0,tempNode);
@@ -529,8 +502,14 @@ void ALevelGenerator::UpdateAgentLocation(AShip* agent, int prevX, int prevY, in
 	if (WorldArray[prevX][prevY]->AgentAtLocation == agent)
 		WorldArray[prevX][prevY]->AgentAtLocation = nullptr;
 
+	if (WorldArray[prevX][prevY]->ObjectAtLocation == agent)
+		WorldArray[prevX][prevY]->ObjectAtLocation = nullptr;
+
 	// Update the new position agent
 	WorldArray[newX][newY]->AgentAtLocation = agent;
+
+	if (WorldArray[newX][newY]->ObjectAtLocation == nullptr)
+		WorldArray[newX][newY]->ObjectAtLocation = agent;
 }
 
 
@@ -546,8 +525,24 @@ void ALevelGenerator::TrackAgent(AShip* agent)
 	agent->IsTracked = true;
 }
 
+bool ALevelGenerator::ResourcesExist(EGridType resource) const
+{
+	// Switch on the type and compare
+	switch (resource)
+	{
+		case FRUIT_RESOURCE:
+			return TotalFruitCollected < TotalFruitAvailable;
+		case STONE_RESOURCE:
+			return TotalStoneCollected < TotalStoneAvailable;
+		case WOOD_RESOURCE:
+			return TotalWoodCollected < TotalWoodAvailable;
+		default:
+			return true;
+	}
+}
 
-GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType resourceType, bool ignoreAgents)
+
+GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType resourceType, bool forceFind)
 {
 	float shortestPath = 999999;
 
@@ -600,6 +595,12 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType re
 				if (WorldArray[x][y]->AgentAtLocation)
 					continue;
 				
+				// Make sure resources exist (if not, then skip)
+				if (WorldArray[x][y]->ResourceAtLocation &&
+					WorldArray[x][y]->ResourceAtLocation->IsA(AResourceActor::StaticClass()) &&
+					!Cast<AResourceActor>(WorldArray[x][y]->ResourceAtLocation)->HasResources())
+					continue;
+				
 				const float currentPath = CalculateDistanceBetween(currentPosition, WorldArray[x][y]);
 				if(currentPath < shortestPath)
 				{
@@ -611,7 +612,7 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType re
 	}
 
 	// If no goal found, pick one
-	if (ignoreAgents && !goalNode)
+	if (forceFind && !goalNode)
 	{
 		// Get the first from the list
 		for (int x = 0; x < MapSizeX; x++)
@@ -659,6 +660,9 @@ void ALevelGenerator::CollectGold(AGold* CollectedGold)
 	}
 
 	CollectedGold->Destroy();
+
+	// Spawn the next gold randomly
+	SpawnNextGold();
 }
 
 

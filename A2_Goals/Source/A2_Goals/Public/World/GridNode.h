@@ -7,6 +7,7 @@
 
 #include "CoreMinimal.h"
 #include "GridType.h"
+#include "Items/ResourceActor.h"
 
 /**
  * Stores information about a specific GridNode in the world
