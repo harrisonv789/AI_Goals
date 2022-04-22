@@ -29,13 +29,19 @@ AShip::AShip()
 	TreasureAction->AddPrecondition("HasMorale", false);
 	TreasureAction->AddEffect("HasMorale", true);
 	AvailableActions.Add(TreasureAction);
+
+	// Create a final roam action for when resources are deposited
+	CollectTreasureAction* finalRoamAction = new CollectTreasureAction();
+	finalRoamAction->AddPrecondition("ResourcesDeposited", true);
+	finalRoamAction->AddPrecondition("Completed", false);
+	finalRoamAction->AddEffect("Completed", true);
+	AvailableActions.Add(finalRoamAction);
 	
 	// Create the new state machine and register the states
 	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
 	ActionStateMachine->RegisterState(IDLE, &AShip::OnIdleEnter, &AShip::OnIdleTick, &AShip::OnIdleExit);
 	ActionStateMachine->RegisterState(MOVE, &AShip::OnMoveEnter, &AShip::OnMoveTick, &AShip::OnMoveExit);
 	ActionStateMachine->RegisterState(ACTION, &AShip::OnActionEnter, &AShip::OnActionTick, &AShip::OnActionExit);
-	ActionStateMachine->RegisterState(COMPLETE, &AShip::OnCompleteEnter, &AShip::OnCompleteTick, &AShip::OnCompleteExit);
 	ActionStateMachine->ChangeState(IDLE);
 }
 
@@ -48,6 +54,8 @@ void AShip::SetResourceTarget(EGridType resourceTarget)
 	// Add in the collecting resource action
 	CollectResourceAction* resourceAction = new CollectResourceAction(ResourceType);
 	resourceAction->AddPrecondition("HasMorale", true);
+	resourceAction->AddPrecondition("ResourcesDeposited", false);
+	resourceAction->AddPrecondition("HasRum", true);
 	resourceAction->AddPrecondition("CollectedResource", false);
 	resourceAction->AddEffect("CollectedResource", true);
 	AvailableActions.Add(resourceAction);
@@ -56,6 +64,7 @@ void AShip::SetResourceTarget(EGridType resourceTarget)
 	DepositResourceAction* depositAction = new DepositResourceAction(ResourceType, resourceAction->ResourceToGather);
 	depositAction->AddPrecondition("HasMorale", true);
 	depositAction->AddPrecondition("CollectedResource", true);
+	resourceAction->AddPrecondition("ResourcesDeposited", false);
 	depositAction->AddEffect("CollectedResource", false);
 	depositAction->AddEffect("ResourcesDeposited", true);
 	AvailableActions.Add(depositAction);
@@ -66,6 +75,9 @@ void AShip::SetResourceTarget(EGridType resourceTarget)
 void AShip::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Set up the amount of rum on the ship
+	NumRum = MAX_RUM;
 }
 
 
@@ -94,18 +106,16 @@ void AShip::OnIdleTick(float deltaTime)
 		}
 
 		// In this state, we look to create a plan. Get the world state
-		TMap<FString, bool> worldState = GetWorldState();
+		const TMap<FString, bool> worldState = GetWorldState();
 
 		// Get the desired goal state
-		TMap<FString, bool> goalState = GetGoalState();
+		const TMap<FString, bool> goalState = GetGoalState();
 
-		// Check if completed
-		if (GOAPPlanner::CheckConditionsInState(goalState, worldState))
+		// Check the world state for a completed system
+		if (worldState["ResourcesDeposited"])
 		{
-			// Finished the mission
-			ActionStateMachine->ChangeState(COMPLETE);
-
-			return;
+			UE_LOG(LogTemp, Warning, TEXT("%s has completed all resourcing actions!"), *GetName());
+			IsComplete = true;
 		}
 
 		// Attempt to make the plan and check success
@@ -416,20 +426,6 @@ void AShip::OnActionExit()
 	
 }
 
-void AShip::OnCompleteEnter()
-{
-	UE_LOG(LogTemp, Warning, TEXT("%s - Actions are completed!"), *GetName());
-}
-
-void AShip::OnCompleteTick(float deltaTime)
-{
-}
-
-void AShip::OnCompleteExit()
-{
-}
-
-
 void AShip::HandleCollision(bool collider)
 {
 	// Delete all path actors once the goal is reached
@@ -467,11 +463,17 @@ TMap<FString, bool> AShip::GetWorldState()
 	// Add in a morale flag
 	worldState.Add("HasMorale", IsMoraleReached() && !LookForGold);
 
+	// Add in a rum flag (or if a merchant)
+	worldState.Add("HasRum", NumRum > 0 || IsMerchant());
+
 	// Add in resource collected flag
 	worldState.Add("CollectedResource", GetResourceCollected() > 0);
 
 	// Add in the final deposited world state
 	worldState.Add("ResourcesDeposited", !Level->ResourcesExist(ResourceType));
+
+	// The ship never really completes
+	worldState.Add("Completed", false);
 
 	// Returns the state
 	return worldState;
@@ -486,8 +488,11 @@ TMap<FString, bool> AShip::GetGoalState()
 	// Make sure the morale is valid
 	goalState.Add("HasMorale", true);
 
-	// TODO: Update with the real goal
+	// The resources have all been deposited
 	goalState.Add("ResourcesDeposited", true);
+
+	// Store the completed state
+	goalState.Add("Completed", true);
 
 	// Returns the state
 	return goalState;
@@ -532,6 +537,8 @@ int AShip::GetResourceCollected() const
 			return NumStone;
 		case WOOD_RESOURCE:
 			return NumWood;
+		case MERCHANT_RESOURCE:
+			return NumMerchant;
 		default:
 			return 0;
 	}
@@ -547,21 +554,23 @@ int AShip::GetResourcesRequired() const
 
 FString AShip::GetShipName() const
 {
-	FString merchantName = "Missing";
+	FString name = "Missing";
 	switch (ResourceType)
 	{
 		case FRUIT_RESOURCE:
-			merchantName = "Fruit"; break;
+			name = "Fruit"; break;
 		case STONE_RESOURCE:
-			merchantName = "Stone"; break;
+			name = "Stone"; break;
 		case WOOD_RESOURCE:
-			merchantName = "Wood"; break;
+			name = "Wood"; break;
+		case MERCHANT_RESOURCE:
+			name = "Merchant"; break;
 		default:
 			break;
 	}
 
 	// Return a formatted name
-	return FString::Printf(TEXT("Ship #%02d: %s"), ShipNumber + 1, ToCStr(merchantName));
+	return FString::Printf(TEXT("Ship #%02d: %s"), ShipNumber + 1, ToCStr(name));
 }
 
 EAgentState AShip::GetAgentState() const
@@ -591,6 +600,12 @@ void AShip::DepositWood(int num)
 {
 	NumWood -= num;
 	Level->TotalWoodCollected += num;
+}
+
+void AShip::DepositRum(int num)
+{
+	NumMerchant -= num;
+	Level->TotalRumCollected += num;
 }
 
 void AShip::NotifyActorBeginOverlap(AActor* otherActor)
@@ -636,4 +651,9 @@ void AShip::Track()
 {
 	Level->TrackAgent(this);
 	IsTracked = true;
+}
+
+bool AShip::IsMerchant() const
+{
+	return ResourceType == MERCHANT_RESOURCE;
 }

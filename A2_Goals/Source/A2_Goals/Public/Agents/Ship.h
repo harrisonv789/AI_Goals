@@ -56,6 +56,9 @@ class A2_GOALS_API AShip : public AActor
 	// The max number of retries a ship can try
 	int PathRetriesMax = 2;
 
+	// The maximum amount of rum a ship can carry
+	const int MAX_RUM = 75;
+
 	
 	/************************************************************/
 	public:	
@@ -122,6 +125,10 @@ class A2_GOALS_API AShip : public AActor
 	UPROPERTY(BlueprintReadOnly)
 	int NumFruit;
 
+	// Stores the number of each rum barrels collected
+	UPROPERTY(BlueprintReadOnly)
+	int NumMerchant;
+
 	// Stores the number of gold collected
 	UPROPERTY(BlueprintReadOnly)
 	int NumGold;
@@ -135,6 +142,14 @@ class A2_GOALS_API AShip : public AActor
 	// Sets whether or not this ship is currently being tracked
 	UPROPERTY(BlueprintReadOnly)
 	bool IsTracked = false;
+
+	// A flag for if all tasks have been completed
+	UPROPERTY(BlueprintReadOnly)
+	bool IsComplete = false;
+
+	// The amount of rum a ship has
+	UPROPERTY(BlueprintReadOnly)
+	int NumRum;
 
 	
 	/************************************************************/
@@ -192,22 +207,6 @@ class A2_GOALS_API AShip : public AActor
 	 * @brief Called when the ACTION state is exited
 	 */
 	void OnActionExit ();
-
-	/**
-	 * @brief Called when the COMPLETE state is entered
-	 */
-	void OnCompleteEnter ();
-	
-	/**
-	 * @brief Called when the COMPLETE state is ticked
-	 * @param deltaTime The time-step [s]
-	 */
-	void OnCompleteTick (float deltaTime);
-
-	/**
-	 * @brief Called when the COMPLETE state is exited
-	 */
-	void OnCompleteExit ();
 
 	/**
 	 * @brief Handles collision of two agents
@@ -340,6 +339,12 @@ class A2_GOALS_API AShip : public AActor
 	void DepositWood (int num = 1);
 
 	/**
+	 * @brief Deposits rum to the home base
+	 * @param num The number of rum to deposit
+	 */
+	void DepositRum (int num = 1);
+
+	/**
 	 * @brief Collects the gold actor and removes it from the list
 	 * @param gold The gold to collect
 	 */
@@ -350,4 +355,11 @@ class A2_GOALS_API AShip : public AActor
 	 */
 	UFUNCTION(BlueprintCallable)
 	void Track ();
+
+	/**
+	 * @brief Whether or not the ship is a merchant
+	 * @return A merchant flag
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	bool IsMerchant () const;
 };

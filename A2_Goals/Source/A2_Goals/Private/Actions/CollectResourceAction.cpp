@@ -58,12 +58,6 @@ bool CollectResourceAction::CheckProceduralPreconditions(AShip* ship)
 	if (!goalNode || !goalNode->ResourceAtLocation)
 		return false;
 
-	// If the resources don't exist
-	if (goalNode->ResourceAtLocation &&
-		goalNode->ResourceAtLocation->IsA(AResourceActor::StaticClass()) &&
-		!Cast<AResourceActor>(goalNode->ResourceAtLocation)->HasResources())
-			return false;
-
 	// Get the target
 	Target = goalNode->ResourceAtLocation;
 	TargetNode = goalNode;
@@ -121,6 +115,9 @@ bool CollectResourceAction::PerformAction(AShip* ship, float deltaTime)
 			case FRUIT_RESOURCE:
 				ship->NumFruit++;
 				break;
+			case MERCHANT_RESOURCE:
+				ship->NumMerchant++;
+				break;
 
 			// No default case
 			default:
@@ -132,6 +129,10 @@ bool CollectResourceAction::PerformAction(AShip* ship, float deltaTime)
 
 		// Increase the current resource gathered
 		ResourceGathered++;
+
+		// Decrease the rum count
+		if (!ship->IsMerchant())
+			ship->NumRum--;
 
 		// Reset the time
 		ActionTime = 0.0;

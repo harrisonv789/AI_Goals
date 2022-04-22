@@ -137,6 +137,7 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 						tempResource->ResourceType = EGridType::MERCHANT_RESOURCE;
 						tempResource->XPos = x;
 						tempResource->YPos = y;
+						TotalRumAvailable += tempResource->ResourceCount;
 						WorldArray[x][y]->ResourceAtLocation = tempResource;
 						break;
 					default:
@@ -174,11 +175,13 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 			agent->YPos = randYPos;
 
 			// Set the resource type
-			if (i % 3 == 0 || true)
+			if (i == 6)
+				agent->SetResourceTarget(MERCHANT_RESOURCE);
+			else if (i % 3 == 0)
 				agent->SetResourceTarget(FRUIT_RESOURCE);
 			else if (i % 3 == 1)
 				agent->SetResourceTarget(STONE_RESOURCE);
-			else
+			else if (i % 3 == 2)
 				agent->SetResourceTarget(WOOD_RESOURCE);
 
 			// Set the ship index
@@ -525,6 +528,7 @@ void ALevelGenerator::TrackAgent(AShip* agent)
 	agent->IsTracked = true;
 }
 
+
 bool ALevelGenerator::ResourcesExist(EGridType resource) const
 {
 	// Switch on the type and compare
@@ -536,6 +540,8 @@ bool ALevelGenerator::ResourcesExist(EGridType resource) const
 			return TotalStoneCollected < TotalStoneAvailable;
 		case WOOD_RESOURCE:
 			return TotalWoodCollected < TotalWoodAvailable;
+		case MERCHANT_RESOURCE:
+			return TotalRumCollected < TotalRumAvailable;
 		default:
 			return true;
 	}

@@ -114,6 +114,9 @@ bool DepositResourceAction::PerformAction(AShip* ship, float deltaTime)
 			case FRUIT_RESOURCE:
 				ship->DepositFruit();
 				break;
+			case MERCHANT_RESOURCE:
+				ship->DepositRum();
+				break;
 
 			// No default case
 			default:

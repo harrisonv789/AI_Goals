@@ -33,7 +33,7 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	// Grid Size in World Units
 	static constexpr int GRID_SIZE_WORLD = 100;
 	static constexpr int NUM_GOLD = 10;
-	static constexpr int NUM_AGENTS = 3;
+	static constexpr int NUM_AGENTS = 7;
 	
 	// Sets default values for this actor's properties
 	ALevelGenerator();
@@ -118,6 +118,14 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	// The total number of wood available
 	UPROPERTY(BlueprintReadOnly)
 	int TotalWoodAvailable;
+
+	// The total number of rum collected
+	UPROPERTY(BlueprintReadOnly)
+	int TotalRumCollected;
+
+	// The total number of rum available
+	UPROPERTY(BlueprintReadOnly)
+	int TotalRumAvailable;
 
 	// The current time of the simulation
 	UPROPERTY(BlueprintReadOnly)
