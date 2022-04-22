@@ -7,6 +7,7 @@
 
 #include "CoreMinimal.h"
 #include "AgentState.h"
+#include "Actions/CollectTreasureAction.h"
 #include "GameFramework/Actor.h"
 #include "World/LevelGenerator.h"
 #include "Planning/StateMachine.h"
@@ -42,6 +43,18 @@ class A2_GOALS_API AShip : public AActor
 
 	// A list of actions to execute
 	TQueue<GOAPAction*> CurrentActions;
+
+	// A reference to the collecting treasure action to update the in range
+	CollectTreasureAction* TreasureAction;
+
+	// The previous position of the previous frame
+	FVector PreviousPosition;
+
+	// The number of retries this ship has attempted
+	int PathRetries = 0;
+
+	// The max number of retries a ship can try
+	int PathRetriesMax = 2;
 
 	
 	/************************************************************/
@@ -112,6 +125,16 @@ class A2_GOALS_API AShip : public AActor
 	// Stores the number of gold collected
 	UPROPERTY(BlueprintReadOnly)
 	int NumGold;
+	
+	// Whether or not to look for gold (randomly)
+	bool LookForGold = false;
+
+	// The final node to target
+	GridNode* GoalNode;
+
+	// Sets whether or not this ship is currently being tracked
+	UPROPERTY(BlueprintReadOnly)
+	bool IsTracked = false;
 
 	
 	/************************************************************/
@@ -194,6 +217,25 @@ class A2_GOALS_API AShip : public AActor
 	 */
 	void OnPlanAborted (GOAPAction* failedAction);
 
+	/**
+	 * @brief Called when an actor overlaps another actor
+	 * @param otherActor The actor that is being overlapped
+	 */
+	virtual void NotifyActorBeginOverlap(AActor* otherActor) override;
+
+	/**
+	 * @brief Called when the ship stops overlapping another actor
+	 * @param otherActor The actor that is being ended from overlap
+	 */
+	virtual void NotifyActorEndOverlap(AActor* otherActor) override;
+
+	/**
+	 * @brief Plans a path to the next goal
+	 * @param target The target actor to path plan to
+	 * @return A success flag
+	 */
+	bool PlanPath (AActor* target);
+
 	
 	/************************************************************/
 	public:
@@ -244,6 +286,13 @@ class A2_GOALS_API AShip : public AActor
 	FString GetShipName () const;
 
 	/**
+	 * @brief Returns the current state of the agent
+	 * @return The current state of the agent
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	EAgentState GetAgentState () const;
+
+	/**
 	 * @brief Returns whether or not the morale has been reached
 	 * @return A flag for whether or not the morale is reached
 	 */
@@ -267,4 +316,16 @@ class A2_GOALS_API AShip : public AActor
 	 * @param num The number of wood to deposit
 	 */
 	void DepositWood (int num = 1);
+
+	/**
+	 * @brief Collects the gold actor and removes it from the list
+	 * @param gold The gold to collect
+	 */
+	void CollectGold (AGold* gold);
+
+	/**
+	 * @brief Tracks the current ship and displays in the viewport
+	 */
+	UFUNCTION(BlueprintCallable)
+	void Track ();
 };

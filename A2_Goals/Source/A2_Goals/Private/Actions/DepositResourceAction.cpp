@@ -33,6 +33,7 @@ void DepositResourceAction::Reset()
 	// Ensure the in range is false
 	SetInRange(false);
 	Target = nullptr;
+	TargetNode = nullptr;
 	ResourcesDeposited = 0;
 	ActionTime = 0.0;
 }
@@ -52,7 +53,7 @@ bool DepositResourceAction::CheckProceduralPreconditions(AShip* ship)
 		return false;
 
 	// Calculate the nearest resource
-	GridNode* goalNode = ship->Level->CalculateNearestGoal(ship->XPos, ship->YPos, HOME);
+	GridNode* goalNode = ship->Level->CalculateNearestGoal(ship->XPos, ship->YPos, HOME, true);
 
 	// Check if the resource exists
 	if (!goalNode || !goalNode->ResourceAtLocation)
@@ -60,6 +61,7 @@ bool DepositResourceAction::CheckProceduralPreconditions(AShip* ship)
 
 	// Get the target
 	Target = goalNode->ResourceAtLocation;
+	TargetNode = goalNode;
 
 	// Get the distance to the target
 	const FVector distance = ship->GetActorLocation() - Target->GetActorLocation();
@@ -117,6 +119,7 @@ bool DepositResourceAction::PerformAction(AShip* ship, float deltaTime)
 		{
 			// Remove the target
 			Target = nullptr;
+			TargetNode = nullptr;
 			
 			// Decrease the morale
 			ship->Morale--;

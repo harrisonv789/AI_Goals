@@ -25,10 +25,10 @@ AShip::AShip()
 	CurrentIdleTime = 0;
 
 	// Add in the collecting treasure action
-	CollectTreasureAction* treasureAction = new CollectTreasureAction();
-	treasureAction->AddPrecondition("HasMorale", false);
-	treasureAction->AddEffect("HasMorale", true);
-	AvailableActions.Add(treasureAction);
+	TreasureAction = new CollectTreasureAction();
+	TreasureAction->AddPrecondition("HasMorale", false);
+	TreasureAction->AddEffect("HasMorale", true);
+	AvailableActions.Add(TreasureAction);
 	
 	// Create the new state machine and register the states
 	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
@@ -55,7 +55,6 @@ void AShip::SetResourceTarget(EGridType resourceTarget)
 	DepositResourceAction* depositAction = new DepositResourceAction(ResourceType, resourceAction->ResourceToGather);
 	depositAction->AddPrecondition("HasMorale", true);
 	depositAction->AddPrecondition("CollectedResource", true);
-	depositAction->AddPrecondition("ResourcesDeposited", false);
 	depositAction->AddEffect("CollectedResource", false);
 	depositAction->AddEffect("ResourcesDeposited", true);
 	AvailableActions.Add(depositAction);
@@ -77,7 +76,6 @@ void AShip::OnIdleEnter()
 
 void AShip::OnIdleTick(float deltaTime)
 {
-	FinishedMoving = true;
 	MovementDirection = FVector::ZeroVector;
 
 	// Check if the idle time is greater than the max
@@ -85,6 +83,14 @@ void AShip::OnIdleTick(float deltaTime)
 	{
 		// Reset the idle
 		CurrentIdleTime = 0;
+
+		// Wait some time and try again
+		if (PathRetries >= PathRetriesMax)
+		{
+			LookForGold = true;
+			PathRetries = 0;
+			UE_LOG(LogTemp, Warning, TEXT("%s - Looking for gold now"), *GetName());
+		}
 
 		// In this state, we look to create a plan. Get the world state
 		const TMap<FString, bool> worldState = GetWorldState();
@@ -103,6 +109,7 @@ void AShip::OnIdleTick(float deltaTime)
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("%s was unable to find a plan. Idling for %f seconds."), *GetName(), MaxIdleTime);
+			PathRetries += 1;
 		}
 	}
 
@@ -111,6 +118,27 @@ void AShip::OnIdleTick(float deltaTime)
 	{
 		CurrentIdleTime += deltaTime;
 	}
+}
+
+
+bool AShip::PlanPath(AActor* target)
+{
+	// Reset the goal
+	GoalNode = nullptr;
+	
+	// Finds the node with the action's target
+	GridNode* goalLocation = Level->FindGridNode(target);
+	if (goalLocation)
+	{
+		// Creates a new path to the goal
+		Level->CalculatePath(this, goalLocation);
+		GoalNode = goalLocation;
+		
+	} else
+		return false;
+
+	// Returns a success from the path
+	return !GeneratePath;
 }
 
 
@@ -126,6 +154,7 @@ void AShip::OnMoveEnter()
 	if (CurrentActions.IsEmpty())
 	{
 		ActionStateMachine->ChangeState(IDLE);
+		UE_LOG(LogTemp, Warning, TEXT("%s - Actions are Empty"), *GetName());
 		return;
 	}
 
@@ -134,20 +163,34 @@ void AShip::OnMoveEnter()
 	if (currentAction->RequiresInRange() && currentAction->Target == nullptr)
 	{
 		ActionStateMachine->ChangeState(IDLE);
+		UE_LOG(LogTemp, Warning, TEXT("%s - Missing Target"), *GetName());
 		return;
 	}
 
 	// If no fails, make a plan to move to the new action
 	if (currentAction->RequiresInRange())
 	{
-		// Finds the node with the action's target
-		GridNode* goalLocation = Level->FindGridNode(currentAction->Target);
-		if (goalLocation)
+		// Attempt to path plan and if it fails, change to idle
+		if (!PlanPath(currentAction->Target))
 		{
-			// Creates a new path to the goal
-			Level->CalculatePath(this, goalLocation);
+			FinishedMoving = true;
+			UE_LOG(LogTemp, Warning, TEXT("Failed to find a path for %s"), *GetName());
+
+			// Change to the Idle
+			ActionStateMachine->ChangeState(IDLE);
+
+			// Update the path retries
+			PathRetries += 1;
+
+			return;
 		}
 	}
+
+	// Reset the retries
+	PathRetries = 0;
+
+	// Ensure the ships can start moving
+	FinishedMoving = false;
 }
 
 
@@ -162,6 +205,39 @@ void AShip::OnMoveTick(float deltaTime)
 		// If more grids to traverse
 		if (Path.Num() > 0)
 		{
+			// Get the current node at the world
+			const GridNode* targetWorldNode = Level->WorldArray[Path[0]->X][Path[0]->Y];
+			const GridNode* followingWorldNode = Path.Num() > 1 ? Level->WorldArray[Path[1]->X][Path[1]->Y] : nullptr;
+			const GridNode* goalWorldNode = currentAction->TargetNode;
+			
+			// Check if the next path has an agent now
+			// Or, if the final goal has an agent there, we need to remap
+			if ((targetWorldNode->AgentAtLocation != nullptr && targetWorldNode->AgentAtLocation != this)
+				|| (goalWorldNode->AgentAtLocation != nullptr && Cast<AShip>(goalWorldNode->AgentAtLocation)->GoalNode == goalWorldNode)
+				|| (followingWorldNode != nullptr && followingWorldNode->AgentAtLocation != nullptr && followingWorldNode->AgentAtLocation != this))
+			{
+
+				// Delete all path actors once the goal is reached
+				for (const auto pathObject : PathDisplayActors)
+					pathObject->Destroy();
+
+				// Remove the empty references
+				PathDisplayActors.Empty();
+				Path.Empty();
+
+				// Finished moving
+				FinishedMoving = true;
+
+				// Log error on change
+				UE_LOG(LogTemp, Warning, TEXT("%s found another agent in the way. Planning another route."), *GetName());
+
+				// Return the changing back to path planning
+				ActionStateMachine->ChangeState(MOVE);
+
+				// Return from this tick
+				return;
+			}
+			
 			// Get the current location
 			FVector currentPosition = GetActorLocation();
 
@@ -174,24 +250,36 @@ void AShip::OnMoveTick(float deltaTime)
 			FVector direction = targetPosition - currentPosition;
 			direction.Normalize();
 
-			// Update the movement direction
-			MovementDirection = direction;
-
 			// Add the direction to the current position
 			currentPosition += direction * deltaTime * MoveSpeed;
 			SetActorLocation(currentPosition);
 
+			// Update the movement direction
+			MovementDirection = currentPosition - PreviousPosition;
+			if (!MovementDirection.IsZero())
+				MovementDirection.Normalize();
+			PreviousPosition = currentPosition;
+
 			// Check if the distance to the next position is close enough
 			if (FVector::Dist(currentPosition, targetPosition) <= Tolerance)
 			{
+				// Update the agent's location on the grid node
+				Level->UpdateAgentLocation(this, XPos, YPos, Path[0]->X, Path[0]->Y);
+				
 				// Update the current position and path
 				XPos = Path[0]->X;
 				YPos = Path[0]->Y;
-				currentPosition = targetPosition;
-				Path.RemoveAt(0);
-				Morale--;
 
-				FinishedMoving = true;
+				// Set the current position to the exact target position
+				currentPosition = targetPosition;
+				SetActorLocation(currentPosition);
+
+				// Remove the path and actors that exist here
+				Path.RemoveAt(0);
+				PathDisplayActors.Pop()->Destroy();
+
+				// Subtract a morale
+				Morale--;
 			}
 		}
 
@@ -203,6 +291,12 @@ void AShip::OnMoveTick(float deltaTime)
 
 			// Reset the movement direction
 			MovementDirection = FVector::ZeroVector;
+			
+			// Reset the goal path
+			GoalNode = nullptr;
+
+			// Finished moving
+			FinishedMoving = true;
 
 			// Change to the action state to perform the next action
 			ActionStateMachine->ChangeState(ACTION);
@@ -213,7 +307,13 @@ void AShip::OnMoveTick(float deltaTime)
 
 void AShip::OnMoveExit()
 {
-	
+	// Delete all path actors once the goal is reached
+	for (const auto pathObject : PathDisplayActors)
+		pathObject->Destroy();
+
+	// Remove the empty references
+	PathDisplayActors.Empty();
+	Path.Empty();
 }
 
 
@@ -232,6 +332,7 @@ void AShip::OnActionTick(float deltaTime)
 	if (CurrentActions.IsEmpty())
 	{
 		ActionStateMachine->ChangeState(IDLE);
+		UE_LOG(LogTemp, Warning, TEXT("%s - Actions are empty"), *GetName());
 		return;
 	}
 
@@ -250,6 +351,7 @@ void AShip::OnActionTick(float deltaTime)
 
 		// Remove the empty references
 		PathDisplayActors.Empty();
+		Path.Empty();
 	}
 
 	// Check if there are still more actions to execute
@@ -272,6 +374,7 @@ void AShip::OnActionTick(float deltaTime)
 			if (!isActionSuccessful)
 			{
 				ActionStateMachine->ChangeState(IDLE);
+				UE_LOG(LogTemp, Warning, TEXT("%s - Plan Aborted"), *GetName());
 				OnPlanAborted(currentAction);
 			}
 		}
@@ -289,6 +392,7 @@ void AShip::OnActionTick(float deltaTime)
 	{
 		// No actions remaining, return to idle state
 		ActionStateMachine->ChangeState(IDLE);
+		UE_LOG(LogTemp, Warning, TEXT("%s - Actions are empty"), *GetName());
 	}
 }
 
@@ -305,7 +409,7 @@ TMap<FString, bool> AShip::GetWorldState()
 	TMap<FString, bool> worldState;
 
 	// Add in a morale flag
-	worldState.Add("HasMorale", IsMoraleReached());
+	worldState.Add("HasMorale", IsMoraleReached() && !LookForGold);
 
 	// TODO: Update with the actual resource
 	worldState.Add("CollectedResource", GetResourceCollected() > 0);
@@ -401,7 +505,12 @@ FString AShip::GetShipName() const
 	}
 
 	// Return a formatted name
-	return FString::Printf(TEXT("Ship #%02d : %s Merchant"), ShipNumber + 1, ToCStr(merchantName));
+	return FString::Printf(TEXT("Ship #%02d: %s"), ShipNumber + 1, ToCStr(merchantName));
+}
+
+EAgentState AShip::GetAgentState() const
+{
+	return ActionStateMachine->GetCurrentState();
 }
 
 
@@ -426,4 +535,42 @@ void AShip::DepositWood(int num)
 {
 	NumWood -= num;
 	Level->TotalWoodCollected += num;
+}
+
+void AShip::NotifyActorBeginOverlap(AActor* otherActor)
+{
+	Super::NotifyActorBeginOverlap(otherActor);
+
+	// Check if it a gold
+	if (otherActor->IsA(AGold::StaticClass()))
+	{
+		// Ensure the treasure from being in range
+		TreasureAction->SetInRange(true);
+	}
+}
+
+void AShip::NotifyActorEndOverlap(AActor* otherActor)
+{
+	Super::NotifyActorEndOverlap(otherActor);
+
+	// Check if it a gold
+	if (otherActor->IsA(AGold::StaticClass()))
+	{
+		// Prevent the treasure from being in range
+		TreasureAction->SetInRange(false);
+	}
+}
+
+void AShip::CollectGold(AGold* gold)
+{
+	Morale = 200;
+	NumGold++;
+	Level->CollectGold(gold);
+	LookForGold = false;
+}
+
+void AShip::Track()
+{
+	Level->TrackAgent(this);
+	IsTracked = true;
 }

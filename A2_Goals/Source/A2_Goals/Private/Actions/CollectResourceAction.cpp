@@ -30,6 +30,7 @@ void CollectResourceAction::Reset()
 	// Ensure the in range is false
 	SetInRange(false);
 	Target = nullptr;
+	TargetNode = nullptr;
 	ResourceGathered = 0;
 	ActionTime = 0.0;
 }
@@ -49,7 +50,7 @@ bool CollectResourceAction::CheckProceduralPreconditions(AShip* ship)
 		return false;
 
 	// Calculate the nearest resource
-	GridNode* goalNode = ship->Level->CalculateNearestGoal(ship->XPos, ship->YPos, ResourceType);
+	GridNode* goalNode = ship->Level->CalculateNearestGoal(ship->XPos, ship->YPos, ResourceType, true);
 
 	// Check if the resource exists
 	if (!goalNode || !goalNode->ResourceAtLocation)
@@ -57,6 +58,7 @@ bool CollectResourceAction::CheckProceduralPreconditions(AShip* ship)
 
 	// Get the target
 	Target = goalNode->ResourceAtLocation;
+	TargetNode = goalNode;
 
 	// Get the distance to the target
 	const FVector distance = ship->GetActorLocation() - Target->GetActorLocation();
@@ -114,6 +116,7 @@ bool CollectResourceAction::PerformAction(AShip* ship, float deltaTime)
 		{
 			// Remove the target
 			Target = nullptr;
+			TargetNode = nullptr;
 			
 			// Decrease the morale
 			ship->Morale--;

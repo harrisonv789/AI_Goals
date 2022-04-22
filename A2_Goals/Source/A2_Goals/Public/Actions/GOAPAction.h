@@ -4,6 +4,7 @@
  */
 
 #pragma once
+#include "World/GridNode.h"
 
 // Forward declaration of the ship class
 class AShip;
@@ -36,6 +37,9 @@ class GOAPAction
 
 	// The target the action works on
 	AActor* Target;
+
+	// The target grid node
+	GridNode* TargetNode;
 
 
 	/************************************************************/

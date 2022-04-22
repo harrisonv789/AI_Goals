@@ -14,6 +14,9 @@
 // Resolves a circular dependency
 class AShip;
 
+/**
+ * @brief Base Level class that handles the spawning of all actors and the world
+ */
 UCLASS()
 class A2_GOALS_API ALevelGenerator : public AActor
 {
@@ -103,6 +106,10 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	UPROPERTY(BlueprintReadOnly)
 	int TotalWoodCollected;
 
+	// The current time of the simulation
+	UPROPERTY(BlueprintReadOnly)
+	float CurrentTime;
+
 	
 	/************************************************************/
 	protected:
@@ -191,9 +198,10 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	 * @param xPos The X position
 	 * @param yPos The Y position
 	 * @param resourceType The resource looking for
+	 * @param ignoreAgents Whether to ignore agents that are on locations
 	 * @return The nearest grid node of some resource
 	 */
-	GridNode* CalculateNearestGoal(int xPos, int yPos, EGridType resourceType);
+	GridNode* CalculateNearestGoal(int xPos, int yPos, EGridType resourceType, bool ignoreAgents = false);
 
 	/**
 	 * @brief Finds a grid node with some actor reference
@@ -211,17 +219,26 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	void ResetPath(AShip* currentShip, GridNode* startNode, GridNode* goalNode) const;
 
 	/**
-	 * @brief Spawns all the actors on some path
-	 * @param currentShip The ship agent
-	 * @param startNode The start node
-	 * @param goalNode The end node
-	 */
-	void DetailPath(AShip* currentShip, GridNode* startNode, GridNode* goalNode) const;
-
-	/**
 	 * @brief Renders the path to some goal
 	 * @param currentShip The ship agent
 	 * @param goalNode The target goal node
 	 */
 	void RenderPath(AShip* currentShip, const GridNode* goalNode) const;
+
+	/**
+	 * @brief Updates the agents location on the world grid and sets the references
+	 * @param agent The agent reference
+	 * @param prevX The previous X position
+	 * @param prevY The previous Y position
+	 * @param newX The new X position
+	 * @param newY The new Y position
+	 */
+	void UpdateAgentLocation (AShip* agent, int prevX, int prevY, int newX, int newY) const;
+
+	/**
+	 * @brief Tracks a new agent and displays the tracking in the viewport
+	 * @param agent The new agent to track
+	 */
+	UFUNCTION(BlueprintCallable)
+	void TrackAgent (AShip* agent);
 };

@@ -31,6 +31,7 @@ void ALevelGenerator::Tick(float deltaTime)
 
 	bool resetMovement = true;
 
+	/*
 	for(const auto ship : ShipFleet)
 	{
 		if(!ship->FinishedMoving)
@@ -47,12 +48,18 @@ void ALevelGenerator::Tick(float deltaTime)
 			ship->FinishedMoving = false;
 		}
 	}
+	*/
 
 	// Spawns the next gold
 	if(GoldActors.Num() < NUM_GOLD)
 	{
 		SpawnNextGold();
 	}
+
+	// Update the current time
+	CurrentTime += deltaTime;
+	
+	
 }
 
 void ALevelGenerator::GenerateWorldFromFile(TArray<FString> worldArray)
@@ -206,6 +213,7 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 			
 			ShipFleet.Add(agent);
 			WorldArray[randXPos][randYPos]->ObjectAtLocation = agent;
+			WorldArray[randXPos][randYPos]->AgentAtLocation = agent;
 		}
 	}
 
@@ -361,6 +369,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 	GridNode* currentNode = nullptr;
 	GridNode* tempNode = nullptr;
 	bool isGoalFound = false;
+	targetShip->GeneratePath = true;
 	
 	int searchCount = 0;
 
@@ -371,11 +380,15 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 		goalNode = CalculateNearestGoal(startNode->X, startNode->Y, GOLD_RESOURCE);
 	}
 
-	const int startXPos = targetShip->GetActorLocation().X / GRID_SIZE_WORLD;
-	const int startYPos = targetShip->GetActorLocation().Y / GRID_SIZE_WORLD;
-	startNode = WorldArray[startXPos][startYPos];
-	startNode->IsChecked = true;
-	nodesToVisit.Enqueue(startNode);
+	// Otherwise create the first node to visit
+	else
+	{
+		const int startXPos = targetShip->GetActorLocation().X / GRID_SIZE_WORLD;
+		const int startYPos = targetShip->GetActorLocation().Y / GRID_SIZE_WORLD;
+		startNode = WorldArray[startXPos][startYPos];
+		startNode->IsChecked = true;
+		nodesToVisit.Enqueue(startNode);
+	}
 
 	while (!nodesToVisit.IsEmpty())
 	{
@@ -395,7 +408,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 			// Get the Left neighbor from the list
 			tempNode = WorldArray[currentNode->X][currentNode->Y - 1];
 			// Check to make sure the node hasn't been visited AND is not closed (A wall)
-			if (tempNode->GridType != LAND && !tempNode->IsChecked)
+			if (tempNode->GridType != LAND && !tempNode->IsChecked && tempNode->AgentAtLocation == nullptr)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -410,7 +423,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 			// Get the top neighbor from the list
 			tempNode = WorldArray[currentNode->X + 1][currentNode->Y];
 			// Check to make sure the node hasn't been visited AND is not closed (A wall)
-			if (tempNode->GridType != LAND && !tempNode->IsChecked)
+			if (tempNode->GridType != LAND && !tempNode->IsChecked && tempNode->AgentAtLocation == nullptr)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -425,7 +438,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 			// Get the right neighbor from the list
 			tempNode = WorldArray[currentNode->X][currentNode->Y + 1];
 			// Check to make sure the node hasn't been visited AND is not closed (A wall)
-			if (tempNode->GridType != LAND && !tempNode->IsChecked)
+			if (tempNode->GridType != LAND && !tempNode->IsChecked && tempNode->AgentAtLocation == nullptr)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -440,7 +453,7 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 			// Get the bottom neighbor from the list
 			tempNode = WorldArray[currentNode->X - 1][currentNode->Y];
 			// Check to make sure the node hasn't been visited AND is not closed (A wall)
-			if (tempNode->GridType != LAND && !tempNode->IsChecked)
+			if (tempNode->GridType != LAND && !tempNode->IsChecked && tempNode->AgentAtLocation == nullptr)
 			{
 				tempNode->IsChecked = true;
 				tempNode->Parent = currentNode;
@@ -454,6 +467,14 @@ void ALevelGenerator::CalculatePath(AShip* targetShip, GridNode* goalNode)
 		RenderPath(targetShip, goalNode);
 		targetShip->GeneratePath = false;
 	}
+
+	// Ensure all nodes are not checked
+	for (int i = 0; i < MapSizeX; i++)
+		for (int j = 0; j < MapSizeY; j++)
+		{
+			WorldArray[i][j]->IsChecked = false;
+			WorldArray[i][j]->Parent = nullptr;
+		}
 }
 
 
@@ -473,21 +494,7 @@ void ALevelGenerator::ResetPath(AShip* currentShip, GridNode* startNode, GridNod
 		currentShip->PathDisplayActors[i]->Destroy();
 	}
 	currentShip->PathDisplayActors.Empty();
-
 	currentShip->Path.Empty();
-}
-
-
-void ALevelGenerator::DetailPath(AShip* currentShip, GridNode* startNode, GridNode* goalNode) const
-{
-	/*
-	//Onscreen Debug (Don't forget the include!)
-	GEngine->AddOnScreenDebugMessage(-1, 12.f, FColor::White, FString::Printf(TEXT("Total Cells searched: %d with a path length of: %d and a distance of: %f"), SearchCount, Ship->Path.Num(), CalculateDistanceBetween(StartNode, GoalNode)));
-	GEngine->AddOnScreenDebugMessage(-1, 12.f, FColor::White, FString::Printf(TEXT("The difference between the current implemented path and the direct flight path is: %f"), Ship->Path.Num() / CalculateDistanceBetween(StartNode, GoalNode)));
-	//Log Debug message (Accessed through Window->Developer Tools->Output Log)
-	UE_LOG(LogTemp, Warning, TEXT("Total Cells searched: %d with a path length of: %d and a distance of: %f"), SearchCount, Ship->Path.Num(), CalculateDistanceBetween(StartNode, GoalNode));
-	UE_LOG(LogTemp, Warning, TEXT("The difference between the current implemented path and the direct flight path is: %f"), Ship->Path.Num() / CalculateDistanceBetween(StartNode, GoalNode));
-	*/
 }
 
 
@@ -505,6 +512,8 @@ void ALevelGenerator::RenderPath(AShip* currentShip, const GridNode* goalNode) c
 		GridNode* tempNode = new GridNode();
 		tempNode->X = currentNode->X;
 		tempNode->Y = currentNode->Y;
+		tempNode->Parent = currentNode->Parent;
+		tempNode->AgentAtLocation = currentNode->AgentAtLocation;
 		
 		currentShip->Path.EmplaceAt(0,tempNode);
 		
@@ -514,8 +523,31 @@ void ALevelGenerator::RenderPath(AShip* currentShip, const GridNode* goalNode) c
 	ResetAllNodes();
 }
 
+void ALevelGenerator::UpdateAgentLocation(AShip* agent, int prevX, int prevY, int newX, int newY) const
+{
+	// Replace the old world array point agent
+	if (WorldArray[prevX][prevY]->AgentAtLocation == agent)
+		WorldArray[prevX][prevY]->AgentAtLocation = nullptr;
 
-GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType resourceType)
+	// Update the new position agent
+	WorldArray[newX][newY]->AgentAtLocation = agent;
+}
+
+
+void ALevelGenerator::TrackAgent(AShip* agent)
+{
+	// Stop tracking other agents
+	for (const auto ship : ShipFleet)
+	{
+		ship->IsTracked = false;
+	}
+
+	// Update the tracking
+	agent->IsTracked = true;
+}
+
+
+GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType resourceType, bool ignoreAgents)
 {
 	float shortestPath = 999999;
 
@@ -533,6 +565,10 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType re
 		{
 			const int goldXPos = gold->GetActorLocation().X / GRID_SIZE_WORLD;
 			const int goldYPos = gold->GetActorLocation().Y / GRID_SIZE_WORLD;
+
+			// Make sure no agent exists here
+			if (WorldArray[goldXPos][goldYPos]->AgentAtLocation)
+				continue;
 			
 			const float currentPath = CalculateDistanceBetween(currentPosition, WorldArray[goldXPos][goldYPos]);
 			if(currentPath < shortestPath)
@@ -560,6 +596,10 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType re
 		{
 			if(WorldArray[x][y]->GridType == resourceType)
 			{
+				// Make sure no agent exists here
+				if (WorldArray[x][y]->AgentAtLocation)
+					continue;
+				
 				const float currentPath = CalculateDistanceBetween(currentPosition, WorldArray[x][y]);
 				if(currentPath < shortestPath)
 				{
@@ -568,6 +608,16 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType re
 				}
 			}
 		}
+	}
+
+	// If no goal found, pick one
+	if (ignoreAgents && !goalNode)
+	{
+		// Get the first from the list
+		for (int x = 0; x < MapSizeX; x++)
+			for (int y = 0; y < MapSizeY; y++)
+				if(WorldArray[x][y]->GridType == resourceType)
+					return WorldArray[x][y];
 	}
 	
 	return goalNode;

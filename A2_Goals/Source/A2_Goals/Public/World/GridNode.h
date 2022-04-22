@@ -38,6 +38,7 @@ class A2_GOALS_API GridNode
 	// Object at current location
 	AActor* ObjectAtLocation;
 	AActor* ResourceAtLocation;
+	AActor* AgentAtLocation;
 
 	// Whether or not the grid square has been checked by the search
 	bool IsChecked;

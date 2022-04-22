@@ -14,6 +14,7 @@ GridNode::GridNode()
 	Parent = nullptr;
 	ObjectAtLocation = nullptr;
 	ResourceAtLocation = nullptr;
+	AgentAtLocation = nullptr;
 
 	ResourceNum = 0;
 

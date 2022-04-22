@@ -26,6 +26,7 @@ void CollectTreasureAction::Reset()
 	// Ensure the in range is false
 	SetInRange(false);
 	Target = nullptr;
+	TargetNode = nullptr;
 	TreasureGathered = 0;
 	ActionTime = 0.0;
 }
@@ -55,13 +56,7 @@ bool CollectTreasureAction::CheckProceduralPreconditions(AShip* ship)
 
 	// Get the target
 	Target = goalNode->ResourceAtLocation;
-
-	// Get the distance to the target
-	const FVector distance = ship->GetActorLocation() - Target->GetActorLocation();
-
-	// Check if the distance is less than some amount
-	// TODO update with some actual collision system
-	SetInRange(distance.Size() <= 5);
+	TargetNode = goalNode;
 
 	// Return a success
 	return true;
@@ -85,12 +80,13 @@ bool CollectTreasureAction::PerformAction(AShip* ship, float deltaTime)
 	{
 		// Increase the morale and gold
 		TreasureGathered++;
-		ship->Morale = 200;
-		ship->NumGold++;
-		ship->Level->CollectGold(goldResource);
+
+		// Call the collect gold action
+		ship->CollectGold(goldResource);
 
 		// Remove the target
 		Target = nullptr;
+		TargetNode = nullptr;
 	}
 
 	// Return a success
