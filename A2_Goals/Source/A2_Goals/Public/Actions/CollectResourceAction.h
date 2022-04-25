@@ -23,7 +23,7 @@ class CollectResourceAction : public GOAPAction
 	const int ResourceToGather = 50;
 
 	// How long does it take to gather treasure?
-	const float TimeToCollect = 0.2f;
+	const float TimeToCollect = 1.0f;
 
 	// How much resource has been gathered so far?
 	int ResourceGathered;

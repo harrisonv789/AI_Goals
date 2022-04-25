@@ -20,7 +20,7 @@ class CollectRumAction : public GOAPAction
 	const int RumToCollect = 10;
 
 	// How long does it take to gather rum?
-	const float TimeToCollect = 0.2f;
+	const float TimeToCollect = 1.0f;
 
 	// How much rum has been gathered so far?
 	int RumGathered;

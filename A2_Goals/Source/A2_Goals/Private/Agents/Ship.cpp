@@ -18,7 +18,7 @@ AShip::AShip()
 	// Set this actor to call Tick() every frame.
 	PrimaryActorTick.bCanEverTick = true;
 	MoveSpeed = 100;
-	Tolerance = 1;
+	Tolerance = 5;
 	MovementDirection = FVector::ZeroVector;
 
 	// Set the default idles
@@ -439,8 +439,7 @@ void AShip::OnActionTick(float deltaTime)
 			// If we fail the action, change to the IDLE state and report that we abort
 			if (!isActionSuccessful)
 			{
-				ActionStateMachine->ChangeState(IDLE);
-				UE_LOG(LogTemp, Warning, TEXT("%s - Plan Aborted"), *GetName());
+				// Abort the plan
 				OnPlanAborted(currentAction);
 			}
 		}
@@ -468,6 +467,7 @@ void AShip::OnActionExit()
 	
 }
 
+
 void AShip::OnBacktrackEnter()
 {
 	
@@ -486,7 +486,7 @@ void AShip::OnBacktrackTick(float deltaTime)
 	direction.Normalize();
 
 	// Add the direction to the current position (multiplied by a small multiple)
-	currentPosition += direction * deltaTime * MoveSpeed * 0.2;
+	currentPosition += direction * deltaTime * MoveSpeed * BacktrackSpeed;
 	SetActorLocation(currentPosition);
 			
 	// Update the movement direction (to the reverse of it to look like its reversing)
@@ -506,6 +506,9 @@ void AShip::OnBacktrackTick(float deltaTime)
 			XPos = PrevXPos;
 			YPos = PrevYPos;
 		}
+
+		// Turn off requiring gold for replanning
+		LookForGold = false;
 
 		// Subtract a morale
 		Morale--;
@@ -606,19 +609,13 @@ TMap<FString, bool> AShip::GetGoalState()
 }
 
 
-void AShip::OnPlanFailed(TMap<FString, bool> failedGoalState)
+void AShip::OnPlanAborted(GOAPAction* failedAction) const
 {
-	
+	ActionStateMachine->ChangeState(IDLE);
+	UE_LOG(LogTemp, Warning, TEXT("%s - Plan Aborted"), *GetName());
 }
 
 
-void AShip::OnPlanAborted(GOAPAction* failedAction)
-{
-	
-}
-
-
-// Called every frame
 void AShip::Tick(float deltaTime)
 {
 	Super::Tick(deltaTime);
@@ -680,6 +677,7 @@ FString AShip::GetShipName() const
 	return FString::Printf(TEXT("Ship #%02d: %s"), ShipNumber + 1, ToCStr(name));
 }
 
+
 EAgentState AShip::GetAgentState() const
 {
 	return ActionStateMachine->GetCurrentState();
@@ -696,11 +694,13 @@ bool AShip::IsMoraleReached() const
 	return Morale > TargetMorale;
 }
 
+
 void AShip::DepositFruit(int num)
 {
 	NumFruit -= num;
 	Level->TotalFruitCollected += num;
 }
+
 
 void AShip::DepositStone(int num)
 {
@@ -708,17 +708,20 @@ void AShip::DepositStone(int num)
 	Level->TotalStoneCollected += num;
 }
 
+
 void AShip::DepositWood(int num)
 {
 	NumWood -= num;
 	Level->TotalWoodCollected += num;
 }
 
+
 void AShip::DepositRum(int num)
 {
 	NumMerchant -= num;
 	Level->TotalRumCollected += num;
 }
+
 
 void AShip::NotifyActorBeginOverlap(AActor* otherActor)
 {
@@ -739,6 +742,7 @@ void AShip::NotifyActorBeginOverlap(AActor* otherActor)
 	}
 }
 
+
 void AShip::NotifyActorEndOverlap(AActor* otherActor)
 {
 	Super::NotifyActorEndOverlap(otherActor);
@@ -751,6 +755,7 @@ void AShip::NotifyActorEndOverlap(AActor* otherActor)
 	}
 }
 
+
 void AShip::CollectGold(AGold* gold)
 {
 	Morale = 200;
@@ -759,11 +764,13 @@ void AShip::CollectGold(AGold* gold)
 	LookForGold = false;
 }
 
+
 void AShip::Track()
 {
 	Level->TrackAgent(this);
 	IsTracked = true;
 }
+
 
 bool AShip::IsMerchant() const
 {

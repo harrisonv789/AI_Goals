@@ -68,6 +68,10 @@ class A2_GOALS_API AShip : public AActor
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	int RumThreshold = 1;
 
+	// The speed multiplier applied on the ship when reversing
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float BacktrackSpeed = 0.2;
+
 	// The previous X position before the current one
 	int PrevXPos;
 
@@ -269,16 +273,10 @@ class A2_GOALS_API AShip : public AActor
 	TMap<FString, bool> GetGoalState ();
 
 	/**
-	 * @brief A plan was unable to be found. Likely to idle for a bit
-	 * @param failedGoalState The goal state mapping
-	 */
-	void OnPlanFailed (TMap<FString, bool> failedGoalState);
-
-	/**
 	 * @brief A plan was aborted midway through an action
 	 * @param failedAction The action that failed to execute
 	 */
-	void OnPlanAborted (GOAPAction* failedAction);
+	void OnPlanAborted (GOAPAction* failedAction) const;
 
 	/**
 	 * @brief Called when an actor overlaps another actor

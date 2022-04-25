@@ -22,7 +22,7 @@ class DepositResourceAction : public GOAPAction
 	int ResourcesToDeposit = 50;
 
 	// How long does it take to deposit treasure?
-	const float TimeToDeposit = 0.1f;
+	const float TimeToDeposit = 0.5f;
 
 	// How much resource has been deposited so far?
 	int ResourcesDeposited;
