@@ -15,6 +15,12 @@ Running the Unreal application on any valid device will result with the followin
 
 ---
 
+## Brief
+
+>The pirate ships (agents) must collect resources from surrounding islands to build up their home island within the virtual environment. There are 3 types of pirate ship, each assigned a different resource to collect: wood, stone or fruit. Each pirate ship must navigate the world and collect resources from surrounding islands, whilst ensuring they avoid collisions with other ships. Pirate ships start with 100 morale points. This total decreases by 1 point for each action taken, such as moving 1 tile or collecting a resource. When morale reaches 0 points a mutiny occurs! The pirate ship stops all actions for the remainder of the simulation. Pirate ships can collect treasure to refresh their morale. Your task is to implement a planning system for completing sequences of actions to ensure the pirate ships collect resources required for the home island whilst managing their individual morale. As part of this, the ships should not collide with other ships. This may require you to implement changes to the path finding algorithm.
+
+---
+
 ## Resources
 
 There are 4 resources in this application; fruit, stone, wood and rum. The first three resources are searched by 2 agents each, and each ship aims to collect 50 resources from a specific location and deposits them back to one of the three home-base locations. Once deposited, they will return back to another resource location that still contains a resource and collect more. Each resource tile has a maximum of 500 resources of it's chosen type. As resources are used up, the colour of the tiles slowly fade to white.
@@ -158,9 +164,7 @@ The following show the list of adjustable parameters that can be tweaked to chan
 ### Ship Movement Speed
 This describes how fast each ship moves per second, where each grid cell is 100 units in distance.
 
-> **Current:** 200
-
-> **Optimal:** 300
+> **Current:** 300
 
 > **Available:** On the BP_Ship actor properties
 
@@ -169,16 +173,12 @@ This describes how close a ship has to be to its target before it is deemed 'rea
 
 > **Current:** 10
 
-> **Optimal:** 10
-
 > **Available:** On the BP_Ship actor properties
 
 ### Ship Max Rum
 This describes how much rum each ship starts with and how much it is able to carry.
 
-> **Current:** 75
-
-> **Optimal:** 10
+> **Current:** 10
 
 > **Available:** On the BP_Ship actor properties
 
@@ -187,16 +187,12 @@ This describes the minimum amount of rum a ship can have before it needs to coll
 
 > **Current:** 1
 
-> **Optimal:** 1
-
 > **Available:** On the BP_Ship actor properties
 
 ### Ship Min Idle Time
 This describes the minimum time a ship can idle when deciding on a plan.
 
 > **Current:** 1.0
-
-> **Optimal:** 1.0
 
 > **Available:** On the BP_Ship actor properties
 
@@ -205,16 +201,12 @@ This describes the maximum time a ship can idle when deciding on a plan.
 
 > **Current:** 3.0
 
-> **Optimal:** 3.0
-
 > **Available:** On the BP_Ship actor properties
 
 ### Ship Backtrack Speed
 This describes the multiplier of the speed when the ship is reversing backwards due to a collision occurring.
 
 > **Current:** 0.2
-
-> **Optimal:** 0.2
 
 > **Available:** On the BP_Ship actor properties
 
@@ -223,16 +215,12 @@ This describes how much resources each resource actor has at the beginning of th
 
 > **Current:** 500
 
-> **Optimal:** 500
-
 > **Available:** On each of the BP_[ResourceActor] actor properties
 
 ### Agent Number
 This describes how many agents to spawn in the game.
 
 > **Current:** 7
-
-> **Optimal:** 7
 
 > **Available:** On the Level Generator in the World Outliner
 
@@ -241,43 +229,34 @@ This describes how much gold to be spawned at all times during the game.
 
 > **Current:** 10
 
-> **Optimal:** 10
-
 > **Available:** On the Level Generator in the World Outliner
 
 ### Gold Collection Time
 This describes how long (in seconds) it takes for gold to be collected when reached.
 
-> **Current:** 1.0
-
-> **Optimal:** 0.2
+> **Current:** 0.2
 
 > **Available:** Line 21 on the CollectTreasureAction.h
 
 ### Resource Collection Time
 This describes how long (in seconds) it takes for resources to be collected when reached.
 
-> **Current:** 1.0
-
-> **Optimal:** 0.2
+> **Current:** 0.2
 
 > **Available:** Line 26 on the CollectResourceAction.h
 
 ### Resource Depositing Time
 This describes how long (in seconds) it takes for resources to be deposited when reached the home base.
 
-> **Current:** 0.5
-
-> **Optimal:** 0.1
+> **Current:** 0.1
 
 > **Available:** Line 25 on the DepositResourceAction.h
 
 ### Rum Collection Time
 This describes how long (in seconds) it takes for rum to be collected when reached the home base.
 
-> **Current:** 1.0
+> **Current:** 0.2
 
-> **Optimal:** 0.2
 
 > **Available:** Line 23 on the CollectRumAction.h
 
