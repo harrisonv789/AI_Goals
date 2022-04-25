@@ -50,6 +50,7 @@ AShip::AShip()
 	ActionStateMachine->RegisterState(IDLE, &AShip::OnIdleEnter, &AShip::OnIdleTick, &AShip::OnIdleExit);
 	ActionStateMachine->RegisterState(MOVE, &AShip::OnMoveEnter, &AShip::OnMoveTick, &AShip::OnMoveExit);
 	ActionStateMachine->RegisterState(ACTION, &AShip::OnActionEnter, &AShip::OnActionTick, &AShip::OnActionExit);
+	ActionStateMachine->RegisterState(BACKTRACK, &AShip::OnBacktrackEnter, &AShip::OnBacktrackTick, &AShip::OnBacktrackExit);
 	ActionStateMachine->ChangeState(IDLE);
 }
 
@@ -87,6 +88,10 @@ void AShip::SetResourceTarget(EGridType resourceTarget)
 void AShip::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Update the positions
+	PrevXPos = XPos;
+	PrevYPos = YPos;
 
 	// Set up the amount of rum on the ship
 	NumRum = MaxRum;
@@ -303,6 +308,10 @@ void AShip::OnMoveTick(float deltaTime)
 					// Update the agent's location on the grid node
 					if (Level->UpdateAgentLocation(this, XPos, YPos, Path[0]->X, Path[0]->Y))
 					{
+						// Stores the previous positions
+						PrevXPos = XPos;
+						PrevYPos = YPos;
+						
 						// Update the current position and path
 						XPos = Path[0]->X;
 						YPos = Path[0]->Y;
@@ -455,8 +464,70 @@ void AShip::OnActionExit()
 	
 }
 
+void AShip::OnBacktrackEnter()
+{
+	
+}
+
+
+void AShip::OnBacktrackTick(float deltaTime)
+{
+	FVector currentPosition = GetActorLocation();
+	const float targetXPos = PrevXPos * ALevelGenerator::GRID_SIZE_WORLD;
+	const float targetYPos = PrevYPos * ALevelGenerator::GRID_SIZE_WORLD;
+	const FVector targetPosition(targetXPos, targetYPos, currentPosition.Z);
+
+	// Get the next direction to travel
+	FVector direction = targetPosition - currentPosition;
+	direction.Normalize();
+
+	// Add the direction to the current position (multiplied by a small multiple)
+	currentPosition += direction * deltaTime * MoveSpeed * 0.2;
+	SetActorLocation(currentPosition);
+			
+	// Update the movement direction (to the reverse of it to look like its reversing)
+	MovementDirection = currentPosition - PreviousPosition;
+	if (!MovementDirection.IsZero())
+		MovementDirection.Normalize();
+	MovementDirection = -MovementDirection;
+	PreviousPosition = currentPosition;
+
+	// Check if the distance to the next position is close enough
+	if (FVector::Dist(currentPosition, targetPosition) <= Tolerance)
+	{
+		// Update the agents location
+		if (Level->UpdateAgentLocation(this, XPos, YPos, PrevXPos, PrevYPos))
+		{
+			// Update the current position and path
+			XPos = PrevXPos;
+			YPos = PrevYPos;
+		}
+		
+		// Change back to the idle state to rethink
+		ActionStateMachine->ChangeState( IDLE);
+	}
+}
+
+
+void AShip::OnBacktrackExit()
+{
+	
+}
+
+
 void AShip::HandleCollision(bool collider)
 {
+	// If already in collision mode, switch to idle
+	if (GetAgentState() == BACKTRACK)
+	{
+		ActionStateMachine->ChangeState(IDLE);
+		return;
+	}
+
+	// If in action mode, ignore the collision
+	if (GetAgentState() == ACTION)
+		return;
+	
 	// Delete all path actors once the goal is reached
 	for (const auto pathObject : PathDisplayActors)
 		pathObject->Destroy();
@@ -478,8 +549,8 @@ void AShip::HandleCollision(bool collider)
 	// If a collider got hit, stop
 	else
 	{
-		// Return the changing back to goal planning
-		ActionStateMachine->ChangeState(IDLE);
+		// Change to the backtrack mode
+		ActionStateMachine->ChangeState( BACKTRACK);
 	}
 }
 
@@ -493,7 +564,7 @@ TMap<FString, bool> AShip::GetWorldState()
 	worldState.Add("HasMorale", IsMoraleReached() && !LookForGold);
 
 	// Add in a rum flag (or if a merchant)
-	worldState.Add("HasRum", NumRum > RumThreshold || IsMerchant());
+	worldState.Add("HasRum", NumRum > RumThreshold || IsMerchant() || !Level->IsRumAvailable());
 
 	// Add in resource collected flag
 	worldState.Add("CollectedResource", GetResourceCollected() > 0);

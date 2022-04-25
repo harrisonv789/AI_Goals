@@ -32,8 +32,6 @@ class A2_GOALS_API ALevelGenerator : public AActor
 
 	// Grid Size in World Units
 	static constexpr int GRID_SIZE_WORLD = 100;
-	static constexpr int NUM_GOLD = 10;
-	static constexpr int NUM_AGENTS = 7;
 	
 	// Sets default values for this actor's properties
 	ALevelGenerator();
@@ -60,6 +58,14 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	// A list of ships
 	UPROPERTY(BlueprintReadOnly)
 	TSet<AShip*> ShipFleet;
+
+	// The number of agents to spawn
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	int NumAgents = 7;
+
+	// The number of gold to spawn
+	UPROPERTY(EditAnywhere, Category = "Spawn")
+	int NumGold = 10;
 
 	// Actors for spawning into the world
 	UPROPERTY(EditAnywhere, Category = "Entities")

@@ -68,6 +68,12 @@ class A2_GOALS_API AShip : public AActor
 	UPROPERTY(EditAnywhere, Category = "Stats")
 	int RumThreshold = 1;
 
+	// The previous X position before the current one
+	int PrevXPos;
+
+	// The previous Y position before the current one
+	int PrevYPos;
+
 	
 	/************************************************************/
 	public:	
@@ -227,6 +233,22 @@ class A2_GOALS_API AShip : public AActor
 	 * @brief Called when the ACTION state is exited
 	 */
 	void OnActionExit ();
+
+	/**
+	 * @brief Called when the BACKTRACK state is entered
+	 */
+	void OnBacktrackEnter ();
+	
+	/**
+	 * @brief Called when the BACKTRACK state is ticked
+	 * @param deltaTime The time-step [s]
+	 */
+	void OnBacktrackTick (float deltaTime);
+
+	/**
+	 * @brief Called when the BACKTRACK state is exited
+	 */
+	void OnBacktrackExit ();
 
 	/**
 	 * @brief Handles collision of two agents

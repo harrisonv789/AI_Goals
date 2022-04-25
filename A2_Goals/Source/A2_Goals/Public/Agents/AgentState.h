@@ -15,4 +15,5 @@ enum EAgentState
 	IDLE				= 1,
 	MOVE				= 2,
 	ACTION				= 3,
+	BACKTRACK			= 4,
 };

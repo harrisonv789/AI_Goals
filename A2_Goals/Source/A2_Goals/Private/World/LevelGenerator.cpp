@@ -150,7 +150,7 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 	// Generate Initial Agent Positions
 	if(ShipBlueprint)
 	{
-		for (int i = 0; i < NUM_AGENTS; i++)
+		for (int i = 0; i < NumAgents; i++)
 		{
 			int randXPos = 0;
 			int randYPos = 0;
@@ -196,7 +196,7 @@ void ALevelGenerator::SpawnWorldActors(char grid[MAX_MAP_SIZE][MAX_MAP_SIZE])
 	// Generates some gold in the world
 	if (GoldBlueprint)
 	{
-		for(int i = 0; i < NUM_GOLD; i++)
+		for(int i = 0; i < NumGold; i++)
 		{
 			int randXPos = 0;
 			int randYPos = 0;
