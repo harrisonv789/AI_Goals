@@ -66,7 +66,6 @@ bool CollectResourceAction::CheckProceduralPreconditions(AShip* ship)
 	const FVector distance = ship->GetActorLocation() - Target->GetActorLocation();
 
 	// Check if the distance is less than some amount
-	// TODO update with some actual collision system
 	SetInRange(distance.Size() <= 5);
 
 	// Return a success

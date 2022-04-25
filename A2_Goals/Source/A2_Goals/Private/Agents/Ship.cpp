@@ -236,6 +236,10 @@ void AShip::OnMoveEnter()
 
 void AShip::OnMoveTick(float deltaTime)
 {
+	// If no morale left, mutiny!
+	if (Morale <= 0)
+		return;
+	
 	// Get the current action that we are executing
 	GOAPAction* currentAction = *CurrentActions.Peek();
 
@@ -260,7 +264,7 @@ void AShip::OnMoveTick(float deltaTime)
 				willCollide = !goalWorldNode || !goalWorldNode->ResourceAtLocation;
 
 			// Check if any of the next [x] positions will have a collision
-			for (int i = 0; i < 4; i ++)
+			for (int i = 0; i < 5; i ++)
 			{
 				const GridNode* nextGridNode = Path.Num() > i ? Level->WorldArray[Path[i]->X][Path[i]->Y] : nullptr;
 				if (!willCollide && nextGridNode)
@@ -502,6 +506,9 @@ void AShip::OnBacktrackTick(float deltaTime)
 			XPos = PrevXPos;
 			YPos = PrevYPos;
 		}
+
+		// Subtract a morale
+		Morale--;
 		
 		// Change back to the idle state to rethink
 		ActionStateMachine->ChangeState( IDLE);
