@@ -130,10 +130,6 @@ bool CollectResourceAction::PerformAction(AShip* ship, float deltaTime)
 		// Increase the current resource gathered
 		ResourceGathered++;
 
-		// Decrease the rum count
-		if (!ship->IsMerchant())
-			ship->NumRum--;
-
 		// Reset the time
 		ActionTime = 0.0;
 
@@ -146,6 +142,10 @@ bool CollectResourceAction::PerformAction(AShip* ship, float deltaTime)
 			
 			// Decrease the morale
 			ship->Morale--;
+			
+			// Decrease the rum count
+			if (!ship->IsMerchant())
+				ship->NumRum--;
 		}
 	}
 

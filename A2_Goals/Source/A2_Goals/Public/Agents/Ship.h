@@ -7,6 +7,7 @@
 
 #include "CoreMinimal.h"
 #include "AgentState.h"
+#include "Actions/CollectRumAction.h"
 #include "Actions/CollectTreasureAction.h"
 #include "GameFramework/Actor.h"
 #include "World/LevelGenerator.h"
@@ -47,6 +48,9 @@ class A2_GOALS_API AShip : public AActor
 	// A reference to the collecting treasure action to update the in range
 	CollectTreasureAction* TreasureAction;
 
+	// A reference to the collecting rum action
+	CollectRumAction* RumAction;
+
 	// The previous position of the previous frame
 	FVector PreviousPosition;
 
@@ -57,7 +61,12 @@ class A2_GOALS_API AShip : public AActor
 	int PathRetriesMax = 2;
 
 	// The maximum amount of rum a ship can carry
-	const int MAX_RUM = 75;
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	int MaxRum = 75;
+
+	// The threshold before the ship needs to look for rum
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	int RumThreshold = 1;
 
 	
 	/************************************************************/
@@ -88,6 +97,10 @@ class A2_GOALS_API AShip : public AActor
 	UPROPERTY(BlueprintReadOnly)
 	int TargetMorale = 100;
 
+	// The ships lowered Morale if no rum
+	UPROPERTY(BlueprintReadOnly)
+	int MissingRumMorale = 40;
+
 	// The direction that the current ship is moving towards
 	UPROPERTY(BlueprintReadOnly)
 	FVector MovementDirection;
@@ -106,12 +119,19 @@ class A2_GOALS_API AShip : public AActor
 	UPROPERTY()
 	TArray<AActor*> PathDisplayActors;
 
+	// The minimum time the ship can remain in an idle state
+	UPROPERTY(EditAnywhere, Category = "Stats")
+	float MinIdleTime = 1;
+
 	// The maximum time the ship can remain in an idle state
 	UPROPERTY(EditAnywhere, Category = "Stats")
-	float MaxIdleTime;
+	float MaxIdleTime = 2;
 
 	// The current time the ship has remained idling
 	float CurrentIdleTime;
+
+	// The current idle waiting time
+	float CurrentIdleThreshold;
 
 	// Stores the number of each stone collected
 	UPROPERTY(BlueprintReadOnly)

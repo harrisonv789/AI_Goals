@@ -499,20 +499,29 @@ void ALevelGenerator::RenderPath(AShip* currentShip, const GridNode* goalNode) c
 	ResetAllNodes();
 }
 
-void ALevelGenerator::UpdateAgentLocation(AShip* agent, int prevX, int prevY, int newX, int newY) const
+
+bool ALevelGenerator::UpdateAgentLocation(AShip* agent, int prevX, int prevY, int newX, int newY) const
 {
-	// Replace the old world array point agent
-	if (WorldArray[prevX][prevY]->AgentAtLocation == agent)
-		WorldArray[prevX][prevY]->AgentAtLocation = nullptr;
-
-	if (WorldArray[prevX][prevY]->ObjectAtLocation == agent)
-		WorldArray[prevX][prevY]->ObjectAtLocation = nullptr;
-
 	// Update the new position agent
-	WorldArray[newX][newY]->AgentAtLocation = agent;
+	if (WorldArray[newX][newY]->AgentAtLocation == nullptr || WorldArray[newX][newY]->AgentAtLocation == agent)
+	{
+		WorldArray[newX][newY]->AgentAtLocation = agent;
 
-	if (WorldArray[newX][newY]->ObjectAtLocation == nullptr)
-		WorldArray[newX][newY]->ObjectAtLocation = agent;
+		// Replace the new object
+		if (WorldArray[newX][newY]->ObjectAtLocation == nullptr)
+			WorldArray[newX][newY]->ObjectAtLocation = agent;
+
+		// Replace the old world array point agent
+		if (WorldArray[prevX][prevY]->AgentAtLocation == agent)
+			WorldArray[prevX][prevY]->AgentAtLocation = nullptr;
+
+		if (WorldArray[prevX][prevY]->ObjectAtLocation == agent)
+			WorldArray[prevX][prevY]->ObjectAtLocation = nullptr;
+
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -548,6 +557,19 @@ bool ALevelGenerator::ResourcesExist(EGridType resource) const
 }
 
 
+bool ALevelGenerator::IsRumAvailable() const
+{
+	return TotalRumCollected > 0;
+}
+
+
+void ALevelGenerator::TakeRum()
+{
+	TotalRumAvailable--;
+	TotalRumCollected--;
+}
+
+
 GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType resourceType, bool forceFind)
 {
 	float shortestPath = 999999;
@@ -569,6 +591,10 @@ GridNode* ALevelGenerator::CalculateNearestGoal(int xPos, int yPos, EGridType re
 
 			// Make sure no agent exists here
 			if (WorldArray[goldXPos][goldYPos]->AgentAtLocation)
+				continue;
+
+			// Ensure this location is the correct gold
+			if (WorldArray[goldXPos][goldYPos]->ResourceAtLocation != gold)
 				continue;
 			
 			const float currentPath = CalculateDistanceBetween(currentPosition, WorldArray[goldXPos][goldYPos]);

@@ -6,6 +6,7 @@
 #include "Agents/Ship.h"
 
 #include "Actions/CollectResourceAction.h"
+#include "Actions/CollectRumAction.h"
 #include "Actions/CollectTreasureAction.h"
 #include "Actions/DepositResourceAction.h"
 #include "Planning/GOAPPlanner.h"
@@ -21,8 +22,8 @@ AShip::AShip()
 	MovementDirection = FVector::ZeroVector;
 
 	// Set the default idles
-	MaxIdleTime = 3;
 	CurrentIdleTime = 0;
+	CurrentIdleThreshold = MaxIdleTime;
 
 	// Add in the collecting treasure action
 	TreasureAction = new CollectTreasureAction();
@@ -33,9 +34,16 @@ AShip::AShip()
 	// Create a final roam action for when resources are deposited
 	CollectTreasureAction* finalRoamAction = new CollectTreasureAction();
 	finalRoamAction->AddPrecondition("ResourcesDeposited", true);
+	finalRoamAction->AddPrecondition("HasRum", true);
 	finalRoamAction->AddPrecondition("Completed", false);
 	finalRoamAction->AddEffect("Completed", true);
 	AvailableActions.Add(finalRoamAction);
+
+	// Add in a rum collection action for when rum is low
+	RumAction = new CollectRumAction();
+	RumAction->AddPrecondition("HasRum", false);
+	RumAction->AddEffect("HasRum", true);
+	AvailableActions.Add(RumAction);
 	
 	// Create the new state machine and register the states
 	ActionStateMachine = new StateMachine<EAgentState, AShip>(this, NOTHING);
@@ -65,9 +73,13 @@ void AShip::SetResourceTarget(EGridType resourceTarget)
 	depositAction->AddPrecondition("HasMorale", true);
 	depositAction->AddPrecondition("CollectedResource", true);
 	resourceAction->AddPrecondition("ResourcesDeposited", false);
+	depositAction->AddPrecondition("HasRum", true);
 	depositAction->AddEffect("CollectedResource", false);
 	depositAction->AddEffect("ResourcesDeposited", true);
 	AvailableActions.Add(depositAction);
+
+	// Set the rum level
+	RumAction->Level = Level;
 }
 
 
@@ -77,7 +89,7 @@ void AShip::BeginPlay()
 	Super::BeginPlay();
 
 	// Set up the amount of rum on the ship
-	NumRum = MAX_RUM;
+	NumRum = MaxRum;
 }
 
 
@@ -92,10 +104,13 @@ void AShip::OnIdleTick(float deltaTime)
 	MovementDirection = FVector::ZeroVector;
 
 	// Check if the idle time is greater than the max
-	if (CurrentIdleTime >= MaxIdleTime)
+	if (CurrentIdleTime >= CurrentIdleThreshold)
 	{
 		// Reset the idle
 		CurrentIdleTime = 0;
+
+		// Reset the idle threshold
+		CurrentIdleThreshold = FMath::RandRange(MinIdleTime, MaxIdleTime);
 
 		// Wait some time and try again
 		if (PathRetries >= PathRetriesMax)
@@ -235,6 +250,10 @@ void AShip::OnMoveTick(float deltaTime)
 			if (!willCollide)
 				willCollide = goalWorldNode->AgentAtLocation != nullptr && Cast<AShip>(goalWorldNode->AgentAtLocation)->GoalNode == goalWorldNode;
 
+			// Check if the final goal node is missing
+			if (!willCollide)
+				willCollide = !goalWorldNode || !goalWorldNode->ResourceAtLocation;
+
 			// Check if any of the next [x] positions will have a collision
 			for (int i = 0; i < 4; i ++)
 			{
@@ -268,7 +287,7 @@ void AShip::OnMoveTick(float deltaTime)
 			// Add the direction to the current position
 			currentPosition += direction * deltaTime * MoveSpeed;
 			SetActorLocation(currentPosition);
-
+			
 			// Update the movement direction
 			MovementDirection = currentPosition - PreviousPosition;
 			if (!MovementDirection.IsZero())
@@ -282,27 +301,37 @@ void AShip::OnMoveTick(float deltaTime)
 				if (Path.Num() > 0)
 				{
 					// Update the agent's location on the grid node
-					Level->UpdateAgentLocation(this, XPos, YPos, Path[0]->X, Path[0]->Y);
-					
-					// Update the current position and path
-					XPos = Path[0]->X;
-					YPos = Path[0]->Y;
-
-					// Set the current position to the exact target position
-					currentPosition = targetPosition;
-					SetActorLocation(currentPosition);
-
-					// Remove the path and actors that exist here
-					// Sometimes a collision will be triggered by the actor and remove a path
-					if (Path.Num() > 0)
+					if (Level->UpdateAgentLocation(this, XPos, YPos, Path[0]->X, Path[0]->Y))
 					{
-						Path.RemoveAt(0);
-						if (PathDisplayActors.Num() > 0)
-							PathDisplayActors.Pop()->Destroy();
+						// Update the current position and path
+						XPos = Path[0]->X;
+						YPos = Path[0]->Y;
+
+						// Set the current position to the exact target position
+						currentPosition = targetPosition;
+						SetActorLocation(currentPosition);
+
+						// Remove the path and actors that exist here
+						// Sometimes a collision will be triggered by the actor and remove a path
+						if (Path.Num() > 0)
+						{
+							Path.RemoveAt(0);
+							if (PathDisplayActors.Num() > 0)
+								PathDisplayActors.Pop()->Destroy();
+						}
+
+						// Subtract a morale
+						Morale--;
 					}
 
-					// Subtract a morale
-					Morale--;
+					// Otherwise if failed
+					else
+					{
+						// Update to the previous position
+						const float previousXPos = XPos * ALevelGenerator::GRID_SIZE_WORLD;
+						const float previousYPos = YPos * ALevelGenerator::GRID_SIZE_WORLD;
+						SetActorLocation(FVector(previousXPos, previousYPos, currentPosition.Z));
+					}
 				}
 			}
 		}
@@ -459,12 +488,12 @@ TMap<FString, bool> AShip::GetWorldState()
 {
 	// Create a new empty state
 	TMap<FString, bool> worldState;
-
+	
 	// Add in a morale flag
 	worldState.Add("HasMorale", IsMoraleReached() && !LookForGold);
 
 	// Add in a rum flag (or if a merchant)
-	worldState.Add("HasRum", NumRum > 0 || IsMerchant());
+	worldState.Add("HasRum", NumRum > RumThreshold || IsMerchant());
 
 	// Add in resource collected flag
 	worldState.Add("CollectedResource", GetResourceCollected() > 0);
@@ -547,7 +576,7 @@ int AShip::GetResourceCollected() const
 
 int AShip::GetResourcesRequired() const
 {
-	// TODO: Fix this number
+	// This number is fixed
 	return 50;
 }
 
@@ -581,6 +610,11 @@ EAgentState AShip::GetAgentState() const
 
 bool AShip::IsMoraleReached() const
 {
+	// Morale is only low if no rum
+	if (NumRum <= RumThreshold && !IsMerchant())
+		return Morale > MissingRumMorale;
+
+	// Otherwise check if morale is greater than the target
 	return Morale > TargetMorale;
 }
 

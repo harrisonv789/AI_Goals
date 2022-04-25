@@ -135,6 +135,10 @@ bool DepositResourceAction::PerformAction(AShip* ship, float deltaTime)
 			// Remove the target
 			Target = nullptr;
 			TargetNode = nullptr;
+
+			// Decrease the rum count
+			if (!ship->IsMerchant())
+				ship->NumRum--;
 			
 			// Decrease the morale
 			ship->Morale--;

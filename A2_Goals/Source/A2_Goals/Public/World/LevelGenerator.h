@@ -253,8 +253,9 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	 * @param prevY The previous Y position
 	 * @param newX The new X position
 	 * @param newY The new Y position
+	 * @returns whether or not an agent can go here
 	 */
-	void UpdateAgentLocation (AShip* agent, int prevX, int prevY, int newX, int newY) const;
+	bool UpdateAgentLocation (AShip* agent, int prevX, int prevY, int newX, int newY) const;
 
 	/**
 	 * @brief Tracks a new agent and displays the tracking in the viewport
@@ -269,4 +270,15 @@ class A2_GOALS_API ALevelGenerator : public AActor
 	 * @return Whether resources still exist
 	 */
 	bool ResourcesExist (EGridType resource) const;
+
+	/**
+	 * @brief Determines if rum is available
+	 * @return A flag for if rum is available for collection
+	 */
+	bool IsRumAvailable () const;
+
+	/**
+	 * @brief Takes some rum which goes to the ship
+	 */
+	void TakeRum ();
 };
